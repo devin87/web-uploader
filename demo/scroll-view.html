@@ -1,0 +1,51 @@
+﻿<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>html4+滚动区域</title>
+    <link href="demo.css" rel="stylesheet" type="text/css" />
+    <link href="../css/uploader.css" rel="stylesheet" type="text/css" />
+    <style type="text/css">
+        .scroll-view { position: relative; }
+    </style>
+</head>
+
+<body>
+    <div class="header">Header</div>
+    <div id="main" class="main scroll-view">
+        <div id="sidebar" class="sidebar"></div>
+        <div id="content" class="content">
+            <div class="h100"></div>
+            <div>
+                <a id="upload-target" class="x-button">选择文件并上传</a>
+            </div>
+            <div id="upload-view"></div>
+            <div class="h1000"></div>
+        </div>
+    </div>
+
+    <script type="text/javascript" src="demo.js"></script>
+
+    <script type="text/javascript" src="../js/Q.js"></script>
+    <script type="text/javascript" src="../js/Q.Uploader.js"></script>
+    <script type="text/javascript" src="../js/Q.Uploader.UI.js"></script>
+
+    <script type="text/javascript">
+        new Q.Uploader({
+            url: "../api/upload.ashx?type=file",
+            target: document.getElementById("upload-target"),
+            view: document.getElementById("upload-view"),
+
+            container: document.getElementById("main"),
+            getPos: function (target) {
+                var offset = Q.getOffset(target);
+                offset.top = target.offsetTop;
+
+                return offset;
+            },
+
+            html5: false
+        });
+    </script>
+</body>
+</html>

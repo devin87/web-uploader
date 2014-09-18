@@ -1,0 +1,35 @@
+.fl { float: left; }
+.fr { float: right; }
+.gray { color: gray; }
+
+.upload-input { position: absolute; overflow: hidden; }
+.upload-html4 { position: absolute; left: -10000px; top: -10000px; }
+
+.u-item { background-color: #f5f5f5; height: 36px; line-height: 36px; font-size: 13px; margin: 10px; padding: 0 10px; position: relative; }
+
+.u-loaded { color: green; }
+.u-total { color: #FC5900; }
+
+.u-name { min-width: 100px; }
+
+.u-progress-bar, .u-progress { background: url(../images/progress.gif) repeat-x; }
+.u-progress-bar { width: 150px; height: 7px; overflow: hidden; margin: 15px 6px 0 0; padding: 1px 0; }
+.u-progress { width: 1px; height: 7px; background-position: 0 -9px; }
+
+.u-detail, .u-state, .u-size, .u-speed, .u-op { text-align: center; }
+
+.u-detail { width: 55px; }
+.u-state { min-width: 45px; }
+
+.u-size { }
+
+.u-speed { width: 85px; }
+.u-op { margin-left: 5px; }
+.u-op a { cursor: pointer; margin-left: 5px; color: #369; text-decoration: none; }
+.u-op a:hover { text-decoration: underline; }
+
+.html4 .u-progress-bar, .html4 .u-detail, .html4 .u-speed { display: none; }
+.html4 .u-size { margin: 0 10px; }
+
+.u-over .u-state { color: #999; }
+.u-over .u-op .u-op-cancel { color: #999; text-decoration: none; cursor: default; }

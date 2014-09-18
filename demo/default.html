@@ -1,0 +1,99 @@
+﻿<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>文件上传 - 带上传参数、回调函数</title>
+    <link href="demo.css" rel="stylesheet" type="text/css" />
+    <link href="../css/uploader.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+    <div class="header">Header</div>
+    <div class="main">
+        <div id="sidebar" class="sidebar"></div>
+        <div class="content">
+            <div>
+                <a id="upload-target" class="x-button">选择文件并上传</a>
+            </div>
+            <div id="upload-view"></div>
+            <div id="log"></div>
+        </div>
+    </div>
+
+    <script type="text/javascript" src="demo.js"></script>
+
+    <script type="text/javascript" src="../js/Q.js"></script>
+    <script type="text/javascript" src="../js/Q.Uploader.js"></script>
+    <script type="text/javascript" src="../js/Q.Uploader.UI.js"></script>
+
+    <script type="text/javascript">
+        function log(msg) {
+            document.getElementById("log").innerHTML += (msg != undefined ? msg : "") + "<br />";
+        }
+
+        var Uploader = Q.Uploader;
+
+        var uploader = new Uploader({
+            url: "../api/upload.ashx?type=file",
+            target: document.getElementById("upload-target"),
+            view: document.getElementById("upload-view"),
+
+            //allows: ".txt,.jpg,.png,.gif,.zip,.rar,.7z",
+
+            //每次上传都会发送的参数(POST方式)
+            data: { user: "Devin" },
+
+            /*
+                上传回调事件：
+                init,          //上传管理器初始化完毕后触发
+
+                select,        //点击上传按钮准备选择上传文件之前触发,返回false可禁止选择文件
+                add[Async],    //添加任务之前触发,返回false将跳过该任务
+                upload[Async], //上传任务之前触发,返回false将跳过该任务
+                send[Async],   //发送数据之前触发,返回false将跳过该任务
+
+                cancel,        //取消上传任务后触发
+                remove,        //移除上传任务后触发
+
+                progress,      //上传进度发生变化后触发(仅html5模式有效)
+                complete       //上传完成后触发
+            */
+            on: {
+                //添加之前触发
+                add: function (task) {
+                    //不会添加exe文件
+                    //if (task.ext == ".exe") return false;
+
+                    if (task.disabled) return alert("允许上传的文件格式为：" + this.ops.allows);
+                    log(task.name + ": 已添加!");
+                },
+
+                //任务移除后触发
+                remove: function (task) {
+                    log(task.name + ": 已移除!");
+                },
+
+                //上传之前触发
+                upload: function (task) {
+                    //exe文件可以添加，但不会上传
+                    if (task.ext == ".exe") return false;
+
+                    //可针对单独的任务配置参数(POST方式)
+                    task.data = { name: task.name + "_" + Date.now() };
+                },
+
+                //上传完成后触发
+                complete: function (task) {
+                    if (task.state != Uploader.COMPLETE) return log(task.name + ": " + Uploader.getStatusText(task.state) + "!");
+
+                    var json = task.json;
+                    if (!json) return log(task.name + ": 服务器未返回正确的数据");
+
+                    log("服务器返回:  " + (task.response || ""));
+                    log();
+                }
+            }
+        });
+    </script>
+</body>
+</html>

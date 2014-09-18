@@ -1,0 +1,87 @@
+﻿<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>文件上传</title>
+    <link href="demo.css" rel="stylesheet" type="text/css" />
+    <link href="../css/uploader.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+    <div class="header">Header</div>
+    <div class="main">
+        <div id="sidebar" class="sidebar"></div>
+        <div class="content">
+            <div>
+                <a id="upload-target" class="x-button">选择文件并上传</a>
+            </div>
+            <div id="upload-info"></div>
+        </div>
+    </div>
+
+    <script type="text/javascript" src="demo.js"></script>
+
+    <script type="text/javascript" src="../js/Q.js"></script>
+    <script type="text/javascript" src="../js/Q.Uploader.js"></script>
+
+    <script type="text/javascript">
+        var Uploader = Q.Uploader,
+
+            boxView = document.getElementById("upload-info");
+
+        function formatSize(size) {
+            return Q.formatSize(size).text;
+        }
+
+        new Uploader({
+            url: "../api/upload.ashx?type=custom",
+            target: document.getElementById("upload-target"),
+
+            multiple: false,
+
+            //自定义UI实现,无需导入 Q.Uploader.UI.js
+            UI: {
+                //init: function () { },
+                draw: function (task) {
+                    this.update(task);
+                },
+                update: function (task) {
+                    var total = task.total || task.size,
+                        loaded = task.loaded,
+
+                        state = task.state;
+
+                    var html = task.name;
+
+                    if (total > 0) {
+                        html += '&nbsp;&nbsp;';
+                        if (loaded != undefined) html += '<span class="u-loaded">' + formatSize(loaded) + '</span> / ';
+                        html += '<span class="u-total">' + formatSize(total) + '</span>';
+
+                        if (loaded != undefined) {
+                            var percentText = "0";
+
+                            if (state == Uploader.PROCESSING) {
+                                var percent = Math.min(loaded * 100 / total, 100);
+
+                                percentText = percent.toFixed(1);
+                                if (percentText == "100.0") percentText = "99.9";
+
+                            } else if (state == Uploader.COMPLETE) {
+                                percentText = "100";
+                            }
+
+                            html += '&nbsp;&nbsp;' + percentText + "%";
+                        }
+                    }
+
+                    html += '&nbsp;&nbsp;<span class="gray">' + Uploader.getStatusText(state) + '</span>';
+
+                    boxView.innerHTML = html;
+                }//,
+                //over: function (task) { }
+            }
+        });
+    </script>
+</body>
+</html>
