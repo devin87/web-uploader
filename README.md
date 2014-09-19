@@ -14,7 +14,7 @@ js (html5 + html4) 文件上传管理器，支持上传进度显示，支持 IE6
 </ul>
 
 ###演示环境（其它语言可自行实现服务端接收和网站部署）
-演示前请在根目录下创建upload文件夹，以保存上传文件
+演示前请在根目录下创建upload文件夹，以保存上传文件<br>
 执行程序：api/upload.ashx
 ```
 asp.net 4.0+
@@ -22,28 +22,28 @@ iis
 ```
 
 ###简单调用示例
-例：使用默认的UI
-1. 导入样式文件(若自己实现UI接口，则无需导入默认的样式文件)
-```
-<link href="css/uploader.css" rel="stylesheet" type="text/css" />
-```
+例：使用默认的UI<br>
+	1. 导入样式文件(若自己实现UI接口，则无需导入默认的样式文件)
+	```
+	<link href="css/uploader.css" rel="stylesheet" type="text/css" />
+	```
 
-2. 导入js文件（可自行合并，若自己实现UI接口，则无需导入 Q.Uploader.UI.js 文件）
-```
-<script type="text/javascript" src="js/Q.js"></script>
-<script type="text/javascript" src="js/Q.Uploader.js"></script>
-<script type="text/javascript" src="js/Q.Uploader.UI.js"></script>
-```
+	2. 导入js文件（可自行合并，若自己实现UI接口，则无需导入 Q.Uploader.UI.js 文件）
+	```
+	<script type="text/javascript" src="js/Q.js"></script>
+	<script type="text/javascript" src="js/Q.Uploader.js"></script>
+	<script type="text/javascript" src="js/Q.Uploader.UI.js"></script>
+	```
 
-3. 调用
-```
-new Q.Uploader({
-	url:"api/upload.ashx",
+	3. 调用
+	```
+	new Q.Uploader({
+		url:"api/upload.ashx",
 
-	target: element,    //上传按钮
-	view: element       //上传任务视图
-});
-```
+		target: element,    //上传按钮
+		view: element       //上传任务视图
+	});
+	```
 
 
 ###完整调用示例
