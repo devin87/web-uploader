@@ -2,7 +2,7 @@
 /*
 * Q.Uploader.js 文件上传管理器 1.0
 * author:devin87@qq.com  
-* update:2014/09/18 15:33
+* update:2014/09/19 15:36
 */
 (function (window, undefined) {
     "use strict";
@@ -137,7 +137,7 @@
 
             //--------------- 可选 ---------------
             html5: true,       //是否启用html5上传,若浏览器不支持,则自动禁用
-            multiple: true,    //选择文件时是否允许多选,若浏览器不支持,则自动禁用
+            multiple: true,    //选择文件时是否允许多选,若浏览器不支持,则自动禁用(仅html5模式有效)
             auto: true,        //添加任务后是否立即上传
 
             data: {},          //上传文件的同时可以指定其它参数,该参数将以POST的方式提交到服务器
@@ -189,8 +189,12 @@
         self.data = ops.data;                    //上传参数
         self.target = ops.target;                //上传按钮
 
-        self.html5 = support_html5_upload && !!def(ops.html5, true);              //是否以html5方式上传
-        self.multiple = support_multiple_select && !!def(ops.multiple, true);     //是否允许多选
+        //是否以html5(ajax)方式上传
+        self.html5 = support_html5_upload && !!def(ops.html5, true);
+
+        //是否允许多选(仅在启用了html5的情形下生效)
+        //在html4模式下,input是一个整体,若启用多选,会导致重复上传,也无法针对单一的文件进行操作(eg:根据扩展名筛选、取消、删除操作等)
+        self.multiple = support_multiple_select && self.html5 && !!def(ops.multiple, true);
 
         //允许同时上传的数量(html5有效)
         //由于设计原因,html4仅能同时上传1个任务,请不要更改
@@ -216,7 +220,7 @@
         if (UI.init) self.init = UI.init;             //执行初始化操作
         if (UI.draw) self.draw = UI.draw;             //添加任务后绘制任务界面
         if (UI.update) self.update = UI.update;       //更新任务界面  
-        if (UI.over) self.complete = UI.over;         //任务上传完成
+        if (UI.over) self.over = UI.over;             //任务上传完成
 
         //上传回调事件
         self.fns = ops.on || {};
@@ -356,7 +360,9 @@
             var getPos = this.getPos || getOffset;
 
             var boxInput = this.boxInput,
-                pos = getPos(this.target);
+                target = this.target,
+
+                pos = target.offsetWidth == 0 ? { left: -10000, top: -10000 } : getPos(target);
 
             boxInput.style.left = pos.left + "px";
             boxInput.style.top = pos.top + "px";

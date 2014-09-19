@@ -1,8 +1,8 @@
 ﻿/// <reference path="Q.Uploader.js" />
 /*
-* Q.Uploader.UI.js 上传管理器带界面
+* Q.Uploader.UI.js 上传管理器界面
 * author:devin87@qq.com  
-* update:2014/09/18 15:33
+* update:2014/09/19 13:50
 */
 (function (window, undefined) {
     "use strict";
@@ -29,6 +29,11 @@
         return Q.formatSize(size).text;
     }
 
+    //追加css样式名
+    function addClass(ele, className) {
+        ele.className += " " + className;
+    }
+
     //设置元素内容
     function setHtml(ele, html) {
         if (ele) ele.innerHTML = html || "";
@@ -38,8 +43,9 @@
     Uploader.extend({
         init: function () {
             var boxView = this.ops.view;
+            if (!boxView) return;
 
-            if (boxView) boxView.className += this.html5 ? "html5" : "html4";
+            addClass(boxView, this.html5 ? "html5" : "html4");
         },
 
         //绘制任务UI
@@ -59,7 +65,7 @@
 
             var html =
                 '<div class="fl">' +
-                    '<div class="u-name color3" title="' + name + '">' + name + '</div>' +
+                    '<div class="u-name" title="' + name + '">' + name + '</div>' +
                 '</div>' +
                 '<div class="fr">' +
                     '<div class="fl u-size"></div>' +
@@ -172,7 +178,7 @@
         over: function (task) {
             if (!task || !task.box) return;
 
-            task.box.className += " u-over";
+            addClass(task.box, "u-over");
         }
     });
 

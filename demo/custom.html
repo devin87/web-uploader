@@ -4,7 +4,10 @@
     <meta charset="utf-8">
     <title>文件上传</title>
     <link href="demo.css" rel="stylesheet" type="text/css" />
-    <link href="../css/uploader.css" rel="stylesheet" type="text/css" />
+    <style type="text/css">
+        .u-loaded { color: green; }
+        .u-total { color: #FC5900; }
+    </style>
 </head>
 
 <body>
@@ -34,12 +37,12 @@
         }
 
         new Uploader({
-            url: "../api/upload.ashx?type=custom",
+            url: "/upload",
             target: document.getElementById("upload-target"),
 
             multiple: false,
 
-            //自定义UI实现,无需导入 Q.Uploader.UI.js
+            //自定义UI实现,无需导入 Q.Uploader.UI.js 和 uploader.css
             UI: {
                 //init: function () { },
                 draw: function (task) {
