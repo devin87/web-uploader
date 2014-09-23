@@ -52,6 +52,9 @@ new Q.Uploader({
 	//--------------- 可选 ---------------
 	html5: true,       //是否启用html5上传,若浏览器不支持,则自动禁用
 	multiple: true,    //选择文件时是否允许多选,若浏览器不支持,则自动禁用(仅html5模式有效)
+
+    clickTrigger:true, //是否启用click触发文件选择 eg: input.click() => ie9及以下不支持
+
 	auto: true,        //添加任务后是否立即上传
 
 	data: {},          //上传文件的同时可以指定其它参数,该参数将以POST的方式提交到服务器
@@ -94,13 +97,13 @@ new Q.Uploader({
 
 说明：回调事件(add、upload、send)支持异步调用，只需在后面加上Async即可，比如在上传之前需要访问服务器验证数据，通过的就上传，否则跳过
 ```
-on:{
-	uploadAsync:function(callback){
-		$.postJSON(url,function(json){
-			if(json.ok) callback();
-			else callback(false);    //指定false后，该任务不会上传
-		});
-	}
+on: {
+	uploadAsync: function (callback) {
+        $.postJSON(url, function (json) {
+            //若 json.ok 返回false，该任务不会上传
+            callback(json.ok);
+        });
+    }
 }
 ```
 
@@ -108,42 +111,48 @@ on:{
 可以在初始化时指定UI处理函数，亦可以通过扩展的方式实现
 ```
 Uploader.extend({
-	//初始化操作，一般无需处理
-	init:function(){},
+    //初始化操作，一般无需处理
+    init: function () { },
 
-	//绘制任务界面
-	draw:function(task){
-		//每个task就是一个上传任务，task一般有以下属性
-		/*task = {
-            id,      //任务编号
+    //绘制任务界面
+    draw: function (task) {
+        //每个task就是一个上传任务，task一般有以下属性
+        /*task = {
+            id,         //任务编号
 
-            name,    //上传文件名（包括扩展名）
-            ext,     //上传文件扩展名
-            size,    //上传文件大小（单位：Byte，若获取不到大小，则值为-1）
+            name,       //上传文件名（包括扩展名）
+            ext,        //上传文件扩展名
+            size,       //上传文件大小（单位：Byte，若获取不到大小，则值为-1）
 
-            input,   //上传控件
-            file,    //上传数据（for html5）
+            input,      //上传控件
+            file,       //上传数据（仅 html5）
 
-            state,   //上传状态
+            state,      //上传状态
 
-			//上传后会有如下属性（需浏览器支持）
-			total,   //总上传大小（单位：Byte）
-			loaded,  //已上传大小（单位：Byte）
-			speed,   //上传速度（单位：Byte/s）
+			disabled,   //若为true，表示禁止上传的文件
+
+			//上传后会有如下属性（部分属性需浏览器支持）
+			xhr,        //XMLHttpRequest对象（仅 html5）
+
+			total,      //总上传大小（单位：Byte）
+			loaded,     //已上传大小（单位：Byte）
+			speed,      //上传速度（单位：Byte/s）
 
 			avg_speed,  //平均上传速度（需上传完毕）
 
 			timeStart,  //开始上传的时间
-			timeEnd     //结束上传的时间（需上传完毕）
+			timeEnd,    //结束上传的时间（需上传完毕）
+
+			deleted     //若为true，表示已删除的文件
         };*/
-	},
+    },
 
-	//更新上传进度
-	update:function(task){
-		
-	},
+    //更新上传进度
+    update: function (task) {
 
-	//上传完毕，一般无需处理
-	over:function(){}
-})
+    },
+
+    //上传完毕，一般无需处理
+    over: function () { }
+});
 ```

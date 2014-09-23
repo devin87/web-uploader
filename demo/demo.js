@@ -1,4 +1,7 @@
-﻿(function () {
+﻿//devin87@qq.com
+(function () {
+    "use strict";
+
     //获取页名称
     function get_page_name(pathname) {
         pathname = pathname || location.pathname;
@@ -18,8 +21,12 @@
         { title: "html4+滚动区域", href: "scroll-view.html" },
         { title: "文件单选", href: "simple-single.html" },
         { title: "手动上传", href: "simple-not-auto.html" },
-        { title: "自定义上传", href: "custom.html" }
+        { title: "多个上传管理器", href: "tabs.html" },
+        { title: "拖拽上传", href: "drag-drop.html" },
+        { title: "自定义UI", href: "custom.html" }
     ];
+
+    var map_page = {};
 
     function draw_sidebar() {
         var html = [];
@@ -28,6 +35,9 @@
         for (var i = 0, len = list_page.length; i < len; i++) {
             var item = list_page[i],
                 href = item.href;
+
+            item.index = i;
+            map_page[href] = item;
 
             html.push('<li' + (href == PAGE_NAME ? ' class="on"' : '') + '><a href="' + item.href + '">' + item.title + '</a></li>');
         }
@@ -38,7 +48,19 @@
 
     function init() {
         draw_sidebar();
+
+        var boxHeader = document.getElementById("header"),
+            page = map_page[PAGE_NAME];
+
+        if (!boxHeader || !page) return;
+
+        if (boxHeader.innerHTML == "Header") boxHeader.innerHTML = page.title;
     }
 
     init();
+
+    //------------------- export -------------------
+
+    window.UPLOAD_URL = "../api/upload.ashx";
+
 })();

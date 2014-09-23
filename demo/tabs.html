@@ -1,0 +1,97 @@
+﻿<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>文件上传</title>
+    <link href="demo.css" rel="stylesheet" type="text/css" />
+    <link href="../css/uploader.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+    <div id="header" class="header">选项卡名称仅为测试，并非真的上传到 Google 或 Baidu</div>
+    <div class="main">
+        <div id="sidebar" class="sidebar"></div>
+        <div class="content">
+            <ul class="tabTitle">
+                <li><a href="#google">上传文件到 Google</a></li>
+                <li><a href="#baidu">上传文件到 Baidu</a></li>
+            </ul>
+            <div class="tabCont">
+                <div class="turn-box google">
+                    <div>
+                        <a class="x-button upload-target">选择文件并上传（Google）</a>
+                    </div>
+                    <div class="upload-view"></div>
+                </div>
+                <div class="turn-box baidu">
+                    <div>
+                        <a class="x-button upload-target">选择文件并上传（Baidu）</a>
+                    </div>
+                    <div class="upload-view"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="text/javascript" src="../js/Q.js"></script>
+    <script type="text/javascript" src="../js/Q.Uploader.js"></script>
+    <script type="text/javascript" src="../js/Q.Uploader.UI.js"></script>
+
+    <script type="text/javascript" src="jquery-1.11.1.js"></script>
+    <script type="text/javascript" src="Q.tabs.js"></script>
+    <script type="text/javascript" src="demo.js"></script>
+
+    <script type="text/javascript">
+        var list_uploader = [];
+
+        //创建上传管理器
+        function create_uploader(ops) {
+            var context = ops.context;
+
+            Q.extend(ops, {
+                url: UPLOAD_URL + "?type=file",
+                target: $(".upload-target", context)[0],
+                view: $(".upload-view", context)[0],
+
+                //为便于调试，此处手动设置 uploader 标识
+                guid: "uploader-" + context.className.slice().slice(9),
+
+                //为便于调试，此处关闭点击触发文件选择框功能，以模拟低版本IE触发方式
+                clickTrigger: false
+            });
+
+            var uploader = new Q.Uploader(ops);
+            list_uploader.push(uploader);
+
+            return uploader;
+        }
+
+        //更新 uploader 触发按钮坐标
+        function update_uploader_pos(index) {
+            for (var i = 0, len = list_uploader.length; i < len; i++) {
+                var uploader = list_uploader[i];
+
+                uploader.updatePos(true);
+            }
+        }
+
+        //自定义选项卡切换事件，见 Q.Tabs.js
+        //在此处初始化 uploader
+        window.onTabChange = function (ops) {
+            var index = ops.index,
+                cont = ops.cont;
+
+            if (!cont.loaded) {
+                cont.loaded = true;
+                create_uploader({ context: cont });
+            }
+
+            //更新 uploader 触发按钮坐标
+            update_uploader_pos(index);
+        };
+
+        //---------------------- init ----------------------
+        Q.setTabs();
+    </script>
+</body>
+</html>

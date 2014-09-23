@@ -2,7 +2,7 @@
 /*
 * Q.Uploader.js 文件上传管理器 1.0
 * author:devin87@qq.com  
-* update:2014/09/19 15:36
+* update:2014/09/23 17:05
 */
 (function (window, undefined) {
     "use strict";
@@ -35,7 +35,7 @@
     var support_html5_upload = false,        //是否支持html5(ajax)方式上传
         support_multiple_select = false,     //是否支持文件多选
 
-        support_file_click_trigger = false,  //上传控件是否支持click触发 eg: input.click() => ie9及以下不支持
+        support_file_click_trigger = false,  //上传控件是否支持click触发文件选择 eg: input.click() => ie9及以下不支持
 
         UPLOADER_GUID = 0,                   //文件上传管理器唯一标示,多用于同一个页面存在多个管理器的情况
 
@@ -71,10 +71,10 @@
         var XHR = window.XMLHttpRequest;
         if (XHR && new XHR().upload && window.FormData) support_html5_upload = true;
 
-        var file = document.createElement("input");
-        file.type = "file";
+        var input = document.createElement("input");
+        input.type = "file";
 
-        support_multiple_select = !!file.files;
+        support_multiple_select = !!input.files;
         support_file_click_trigger = support_html5_upload;
     }
 
@@ -138,6 +138,9 @@
             //--------------- 可选 ---------------
             html5: true,       //是否启用html5上传,若浏览器不支持,则自动禁用
             multiple: true,    //选择文件时是否允许多选,若浏览器不支持,则自动禁用(仅html5模式有效)
+
+            clickTrigger:true, //是否启用click触发文件选择 eg: input.click() => ie9及以下不支持
+
             auto: true,        //添加任务后是否立即上传
 
             data: {},          //上传文件的同时可以指定其它参数,该参数将以POST的方式提交到服务器
@@ -193,8 +196,12 @@
         self.html5 = support_html5_upload && !!def(ops.html5, true);
 
         //是否允许多选(仅在启用了html5的情形下生效)
-        //在html4模式下,input是一个整体,若启用多选,会导致重复上传,也无法针对单一的文件进行操作(eg:根据扩展名筛选、取消、删除操作等)
+        //在html4模式下,input是一个整体,若启用多选,将无法针对单一的文件进行操作(eg:根据扩展名筛选、取消、删除操作等)
+        //若无需对文件进行操作,可通过 uploader.multiple = true 强制启用多选(不推荐)
         self.multiple = support_multiple_select && self.html5 && !!def(ops.multiple, true);
+
+        //是否启用click触发文件选择 eg: input.click() => ie9及以下不支持
+        self.clickTrigger = support_file_click_trigger && !!def(ops.clickTrigger, true);
 
         //允许同时上传的数量(html5有效)
         //由于设计原因,html4仅能同时上传1个任务,请不要更改
@@ -259,23 +266,6 @@
 
             self.boxInput = boxInput;
 
-            if (support_file_click_trigger) {
-                addEvent(target, "click", function (e) {
-                    if (self.fire("select", e) === false) return;
-
-                    self.resetInput();
-
-                    //注意:ie9及以下可以弹出文件选择框,但获取不到选择数据,拒绝访问。
-                    fireEvent(self.inputFile, "click");
-                });
-            } else {
-                addEvent(boxInput, "click", function (e) {
-                    if (self.fire("select", e) === false) stopEvent(e);
-                });
-
-                setOpacity(boxInput, 0);
-            }
-
             //构造html4上传所需的iframe和form
             if (!self.html5) {
                 var iframe_name = "upload_iframe_" + guid;
@@ -304,6 +294,23 @@
 
                     self.complete(undefined, UPLOAD_STATE_COMPLETE, text);
                 });
+            }
+
+            if (self.clickTrigger) {
+                addEvent(target, "click", function (e) {
+                    if (self.fire("select", e) === false) return;
+
+                    self.resetInput();
+
+                    //注意:ie9及以下可以弹出文件选择框,但获取不到选择数据,拒绝访问。
+                    fireEvent(self.inputFile, "click");
+                });
+            } else {
+                addEvent(boxInput, "click", function (e) {
+                    if (self.fire("select", e) === false) stopEvent(e);
+                });
+
+                setOpacity(boxInput, 0);
 
                 self.resetInput();
             }
@@ -323,7 +330,7 @@
                 inputWidth = target.offsetWidth,
                 inputHeight = target.offsetHeight;
 
-            boxInput.innerHTML = '<input type="file" name="' + self.upName + '" style="' + (support_file_click_trigger ? 'visibility: hidden;' : 'width:' + inputWidth + 'px;height:' + inputHeight + 'px;font-size:100px;') + '"' + (self.multiple ? ' multiple="multiple"' : '') + '>';
+            boxInput.innerHTML = '<input type="file" name="' + self.upName + '" style="' + (self.clickTrigger ? 'visibility: hidden;' : 'width:' + inputWidth + 'px;height:' + inputHeight + 'px;font-size:100px;') + '"' + (self.multiple ? ' multiple="multiple"' : '') + '>';
             boxInput.style.width = inputWidth + "px";
             boxInput.style.height = inputHeight + "px";
 
@@ -331,17 +338,7 @@
 
             //文件选择事件
             addEvent(inputFile, "change", function (e) {
-                var input = this,
-                    target = e.target;
-
-                if (target && target.files) {
-                    var files = target.files, len = files.length, i = 0;
-                    for (; i < len; i++) {
-                        self.add(input, files[i]);
-                    }
-                } else {
-                    self.add(input);
-                }
+                self.add(this);
 
                 //html4 重置上传控件
                 if (!self.html5) self.resetInput();
@@ -355,7 +352,7 @@
         },
         //更新上传按钮坐标(for ie)
         updatePos: function (has_more_uploader) {
-            if (support_file_click_trigger) return;
+            if (this.clickTrigger) return;
 
             var getPos = this.getPos || getOffset;
 
@@ -387,18 +384,24 @@
             return this;
         },
 
-        //添加上传任务
-        add: function (input, file) {
+        //添加一个上传任务
+        addTask: function (input, file, arg) {
+            if (!input && !file) return;
+
+            var name, size;
+
+            if (file) {
+                name = file.name || file.fileName;
+                size = file.size || f.fileSize;
+            } else {
+                name = get_last_find(input.value, "\\").slice(1) || input.value;
+                size = -1;
+            }
+
             var self = this,
 
-                name = file ? file.name || file.fileName : get_last_find(input.value, "\\").slice(1) || input.value,
                 ext = get_last_find(name, ".").toLowerCase(),
-
-                size = file ? file.size || f.fileSize : -1,
-
                 isSkip = (self.disallows && self.disallows[ext]) || (self.allows && !self.allows[ext]);
-
-            //if (isSkip) return self;
 
             var task = {
                 id: ++UPLOAD_TASK_GUID,
@@ -409,6 +412,8 @@
 
                 input: input,
                 file: file,
+
+                arg: arg,
 
                 state: isSkip ? UPLOAD_STATE_SKIP : UPLOAD_STATE_READY
             };
@@ -427,7 +432,32 @@
                 if (self.auto) self.start();
             });
 
-            return self;
+            return task;
+        },
+
+        //添加上传任务,自动判断input(是否多选)或file
+        add: function (input_or_file) {
+            var self = this, input, file;
+
+            if (input_or_file.tagName == "INPUT") {
+                var files = input_or_file.files;
+                if (files) {
+                    for (var i = 0, len = files.length; i < len; i++) {
+                        self.addTask(input_or_file, files[i]);
+                    }
+                } else {
+                    self.addTask(input_or_file);
+                }
+            } else {
+                self.addTask(undefined, input_or_file);
+            }
+        },
+
+        //批量添加上传任务
+        addList: function (list) {
+            for (var i = 0, len = list.length; i < len; i++) {
+                this.add(list[i]);
+            }
         },
 
         //获取指定任务
@@ -519,7 +549,8 @@
                 if (result === false) return self.complete(task, UPLOAD_STATE_SKIP);
 
                 if (self.html5 && task.file) self._upload_html5(task);
-                else self._upload_html4(task);
+                else if (task.input) self._upload_html4(task);
+                else self.complete(task, UPLOAD_STATE_SKIP);
             });
 
             return self;
@@ -555,12 +586,13 @@
             }, false);
 
             var fd = new FormData;
-            fd.append(self.upName, task.file);
 
             //处理上传参数
             self._process_params(task, function (k, v) {
                 fd.append(k, v);
             });
+
+            fd.append(self.upName, task.file);
 
             xhr.open("POST", task.url);
 
@@ -578,12 +610,17 @@
         //以传统方式上传任务
         _upload_html4: function (task) {
             var self = this,
-                form = self.form;
+                form = self.form,
+                input = task.input;
 
-            task.input.name = self.upName;
+            //解决多选的情况下重复上传的问题(即使如此，仍然不建议html4模式下开启多选)
+            if (input._uploaded) return self.complete(task, UPLOAD_STATE_COMPLETE);
+            input._uploaded = true;
+
+            input.name = self.upName;
 
             form.innerHTML = "";
-            form.appendChild(task.input);
+            form.appendChild(input);
 
             form.action = task.url;
 

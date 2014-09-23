@@ -8,7 +8,7 @@
 </head>
 
 <body>
-    <div class="header">Header</div>
+    <div id="header" class="header">Header</div>
     <div class="main">
         <div id="sidebar" class="sidebar"></div>
         <div class="content">
@@ -34,7 +34,7 @@
         var Uploader = Q.Uploader;
 
         var uploader = new Uploader({
-            url: "../api/upload.ashx?type=file",
+            url: UPLOAD_URL + "?type=file",
             target: document.getElementById("upload-target"),
             view: document.getElementById("upload-view"),
 

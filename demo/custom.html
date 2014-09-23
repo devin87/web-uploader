@@ -5,13 +5,16 @@
     <title>文件上传</title>
     <link href="demo.css" rel="stylesheet" type="text/css" />
     <style type="text/css">
+        .upload-input { position: absolute; overflow: hidden; }
+        .upload-html4 { position: absolute; left: -10000px; top: -10000px; }
+
         .u-loaded { color: green; }
         .u-total { color: #FC5900; }
     </style>
 </head>
 
 <body>
-    <div class="header">Header</div>
+    <div id="header" class="header">Header</div>
     <div class="main">
         <div id="sidebar" class="sidebar"></div>
         <div class="content">
@@ -37,10 +40,11 @@
         }
 
         new Uploader({
-            url: "/upload",
+            url: UPLOAD_URL,
             target: document.getElementById("upload-target"),
 
             multiple: false,
+            //clickTrigger: false,
 
             //自定义UI实现,无需导入 Q.Uploader.UI.js 和 uploader.css
             UI: {

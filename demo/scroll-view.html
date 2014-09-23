@@ -11,7 +11,7 @@
 </head>
 
 <body>
-    <div class="header">Header</div>
+    <div id="header" class="header">Header</div>
     <div id="main" class="main scroll-view">
         <div id="sidebar" class="sidebar"></div>
         <div id="content" class="content">
@@ -32,7 +32,7 @@
 
     <script type="text/javascript">
         new Q.Uploader({
-            url: "../api/upload.ashx?type=file",
+            url: UPLOAD_URL + "?type=file",
             target: document.getElementById("upload-target"),
             view: document.getElementById("upload-view"),
 

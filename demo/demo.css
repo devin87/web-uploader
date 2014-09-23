@@ -9,7 +9,7 @@ a { text-decoration: none; }
 .header { height: 60px; line-height: 60px; font-size: 16px; text-align: center; border-bottom: 1px solid #ccc; }
 .main { overflow: hidden; }
 
-.sidebar { float: left; width: 180px; height: 300px; border-right: 1px solid #ccc; margin-right: 15px; }
+.sidebar { float: left; width: 180px; border-right: 1px solid #ccc; margin-right: 15px; }
 .sidebar .title { font-size: 16px; padding: 8px 0 8px 15px; }
 .sidebar li { padding: 8px 0 8px 35px; border-top: 1px solid #ddd; }
 .sidebar li a { color: #0094ff; font-size: 14px; }
@@ -18,9 +18,7 @@ a { text-decoration: none; }
 .content { float: left; width: 790px; padding-top: 20px; }
 .x-button { padding: 10px 25px; border-radius: 3px; text-align: center; text-decoration: none; background-color: #0a82e4; color: #ffffff; font-size: 17px; margin: 0; white-space: nowrap; cursor: pointer; min-width: 60px; _width: 60px; }
 
-.content a { margin-right: 5px; }
-
-.content .x-button { display: inline-block; vertical-align: top; }
+.content .x-button { display: inline-block; vertical-align: top; margin-right: 5px; }
 
 #upload-target { margin-bottom: 15px; }
 #upload-view { min-height: 200px; _height: 200px; background: #fff; border: 1px solid green; }
@@ -30,3 +28,15 @@ a { text-decoration: none; }
 .scroll-view { overflow: auto; height: 300px; }
 .h100 { height: 100px; }
 .h1000 { height: 1000px; }
+
+.tabTitle { overflow: hidden; zoom: 1; }
+.tabTitle li { float: left; margin-right: 4px; z-index: 10; position: relative; }
+.tabTitle li a { float: left; padding: 0 18px; border: 1px solid #cdcdcd; border-bottom: none; line-height: 44px; font-size: 14px; color: #333; text-decoration: none; font-weight: bold; background: url(bg-tab.png) repeat-x left bottom; }
+.tabTitle li a:hover, .tabTitle li.on a { border-top: 2px solid #336699; line-height: 44px; background: #fff; }
+
+.tabCont { margin-top: -1px; padding: 10px; border: 1px solid #cdcdcd; background: #fff; }
+
+.turn-box { min-height: 200px; _height: 200px; }
+.turn-box .x-button { margin: 10px; }
+
+#drop-area { width: 400px; height: 200px; line-height: 200px; text-align: center; font-size: 18px; color: #777; border: 1px solid red; margin: 10px 0; }
