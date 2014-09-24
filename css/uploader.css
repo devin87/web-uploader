@@ -10,7 +10,7 @@
 .u-loaded { color: green; }
 .u-total { color: #FC5900; }
 
-.u-name { min-width: 100px; color: #369; }
+.u-name { min-width: 100px; color: #369; margin-right: 10px; }
 
 .u-progress-bar, .u-progress { background: url(../images/progress.gif) repeat-x; }
 .u-progress-bar { width: 150px; height: 7px; overflow: hidden; margin: 15px 6px 0 0; padding: 1px 0; }
