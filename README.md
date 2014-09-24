@@ -59,6 +59,8 @@ new Q.Uploader({
 
 	data: {},          //上传文件的同时可以指定其它参数,该参数将以POST的方式提交到服务器
 
+	dataType: "json",  //服务器返回值类型
+
 	workerThread: 1,   //同时允许上传的任务数(仅html5模式有效)
 
 	upName: "upfile",  //上传参数名称,若后台需要根据name来获取上传数据,可配置此项
@@ -143,7 +145,11 @@ Uploader.extend({
 			timeStart,  //开始上传的时间
 			timeEnd,    //结束上传的时间（仅上传完毕）
 
-			deleted     //若为true，表示已删除的文件
+			deleted,     //若为true，表示已删除的文件
+
+			//文件成功上传
+			response,    //服务器返回的字符串
+			json         //response解析后的JSON对象(仅 uploader 的 dataType 为json 时才有此属性)
         };*/
     },
 
