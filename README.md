@@ -149,7 +149,7 @@ Uploader.extend({
 
 			//文件成功上传
 			response,    //服务器返回的字符串
-			json         //response解析后的JSON对象(仅 uploader 的 dataType 为json 时才有此属性)
+			json         //response解析后的JSON对象(仅当 dataType 为json)
         };*/
     },
 
