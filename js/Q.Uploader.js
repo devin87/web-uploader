@@ -392,7 +392,7 @@
 
             if (file) {
                 name = file.name || file.fileName;
-                size = file.size || f.fileSize;
+                size = file.size || file.fileSize;
             } else {
                 name = get_last_find(input.value, "\\").slice(1) || input.value;
                 size = -1;
