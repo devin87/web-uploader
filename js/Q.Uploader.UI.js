@@ -2,7 +2,7 @@
 /*
 * Q.Uploader.UI.js 上传管理器界面
 * author:devin87@qq.com  
-* update:2014/09/19 13:50
+* update:2015/07/15 10:11
 */
 (function (window, undefined) {
     "use strict";
@@ -18,16 +18,12 @@
         getNext = Q.getNext,
 
         createEle = Q.createEle,
+        formatSize = Q.formatSize,
 
         E = Q.Event,
         addEvent = E.add,
 
         Uploader = Q.Uploader;
-
-    //将文件大小转为合适的单位输出
-    function formatSize(size) {
-        return Q.formatSize(size).text;
-    }
 
     //追加css样式名
     function addClass(ele, className) {

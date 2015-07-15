@@ -2,7 +2,7 @@
 /*
 * Q.Uploader.js 文件上传管理器 1.0
 * author:devin87@qq.com  
-* update:2014/09/23 17:05
+* update:2015/07/15 10:11
 */
 (function (window, undefined) {
     "use strict";
@@ -24,7 +24,7 @@
 
         E = Q.Event,
         addEvent = E.add,
-        fireEvent = E.fire,
+        triggerEvent = E.trigger,
         stopEvent = E.stop;
 
     //Object.forEach
@@ -303,7 +303,7 @@
                     self.resetInput();
 
                     //注意:ie9及以下可以弹出文件选择框,但获取不到选择数据,拒绝访问。
-                    fireEvent(self.inputFile, "click");
+                    triggerEvent(self.inputFile, "click");
                 });
             } else {
                 addEvent(boxInput, "click", function (e) {

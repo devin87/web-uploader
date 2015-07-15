@@ -1,7 +1,7 @@
 ﻿/*
 * Q.js for Uploader
 * author:devin87@qq.com
-* update:2014/09/18 15:33
+* update:2015/07/15 10:11
 */
 (function (window, undefined) {
     "use strict";
@@ -36,6 +36,8 @@
     //扩展对象
     //forced:是否强制扩展
     function extend(destination, source, forced) {
+        if (!destination || !source) return;
+
         for (var key in source) {
             if (key == undefined || !has.call(source, key)) continue;
 
@@ -205,27 +207,35 @@
     }
 
     //触发事件
-    function fire_event(ele, type, e) {
+    function trigger_event(ele, type) {
         if (isFunc(ele[type])) ele[type]();
-        else if (ele.fireEvent) ele.fireEvent("on" + type);
+        else if (ele.fireEvent) ele.fireEvent("on" + type);  //ie10-
         else if (ele.dispatchEvent) {
-            var event = ele.ownerDocument.createEvent('MouseEvents');
-            if (e) event.initMouseEvent(type, true, true, ele.ownerDocument.defaultView, 1, e.screenX, e.screenY, e.clientX, e.clientY, false, false, false, false, 0, null);
-            else event.initEvent(type, false, true);
-            ele.dispatchEvent(event);
+            var evt = document.createEvent("HTMLEvents");
+
+            //initEvent接受3个参数:事件类型,是否冒泡,是否阻止浏览器的默认行为
+            evt.initEvent(type, true, true);
+
+            //鼠标事件,设置更多参数
+            //var evt = document.createEvent("MouseEvents");
+            //evt.initMouseEvent(type, true, true, ele.ownerDocument.defaultView, 1, e.screenX, e.screenY, e.clientX, e.clientY, false, false, false, false, 0, null);
+
+            ele.dispatchEvent(evt);
         }
     }
 
     //阻止事件默认行为并停止事件冒泡
-    function stop_event(event, preventDefault, stopPropagation) {
+    function stop_event(event, isPreventDefault, isStopPropagation) {
         var e = fix_event(event);
 
-        if (preventDefault !== false) {
+        //阻止事件默认行为
+        if (isPreventDefault !== false) {
             if (e.preventDefault) e.preventDefault();
             else e.returnValue = false;
         }
 
-        if (stopPropagation !== false) {
+        //停止事件冒泡
+        if (isStopPropagation !== false) {
             if (e.stopPropagation) e.stopPropagation();
             else e.cancelBubble = true;
         }
@@ -269,7 +279,7 @@
         }
 
         if (level && size < stepNow) {
-            stepNow /= (isNum ? steps : steps[steps.length - 1]);
+            stepNow /= (isNum ? steps : steps.last());
             level--;
         }
 
@@ -280,22 +290,24 @@
 
     //格式化数字输出,将数字转为合适的单位输出,默认按照1024层级转为文件单位输出
     function formatSize(size, ops) {
-        ops = ops || {};
+        ops = ops === true ? { all: true } : ops || {};
 
-        if (isNaN(size) || size == undefined || size < 0) return { text: ops.error || "--" };
+        if (isNaN(size) || size == undefined || size < 0) {
+            var error = ops.error || "--";
+
+            return ops.all ? { text: error } : error;
+        }
 
         var pl = parseLevel(size, ops.steps, ops.limit),
 
-            digit = ops.digit,
-
             value = pl.value,
-            text = value.toFixed(isUInt(digit) || digit == 0 ? digit : 2);
+            text = value.toFixed(def(ops.digit, 2));
 
         if (ops.trim !== false && text.lastIndexOf(".") != -1) text = text.replace(/\.?0+$/, "");
 
-        pl.text = text + (ops.join || "") + (ops.units || UNITS_FILE_SIZE)[pl.level + (ops.levelFix || 0)];
+        pl.text = text + (ops.join || "") + (ops.units || UNITS_FILE_SIZE)[pl.level + (ops.start || 0)];
 
-        return pl;
+        return ops.all ? pl : pl.text;
     }
 
     //---------------------- export ----------------------
@@ -331,7 +343,7 @@
     Q.Event = {
         fix: fix_event,
         stop: stop_event,
-        fire: fire_event,
+        trigger: trigger_event,
 
         add: add_event
     };

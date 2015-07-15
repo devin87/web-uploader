@@ -32,12 +32,8 @@
 
     <script type="text/javascript">
         var Uploader = Q.Uploader,
-
+            formatSize = Q.formatSize,
             boxView = document.getElementById("upload-info");
-
-        function formatSize(size) {
-            return Q.formatSize(size).text;
-        }
 
         new Uploader({
             url: UPLOAD_URL,
