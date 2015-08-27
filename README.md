@@ -1,7 +1,7 @@
 web-uploader
 ============
 
-js (html5 + html4) 文件上传管理器，支持上传进度显示，支持 IE6+、Firefox、Chrome等
+js (html5 + html4) 文件上传管理器，支持上传进度显示，支持 IE6+、Firefox、Chrome等，[博客园详细介绍](http://www.cnblogs.com/devin87/p/web-uploader.html)
 
 ###特点：
 <ul>
@@ -20,6 +20,8 @@ js (html5 + html4) 文件上传管理器，支持上传进度显示，支持 IE6
 asp.net 4.0+
 iis
 ```
+
+Node.js 演示见[web-uploader-node](https://github.com/devin87/web-uploader-node)
 
 ###简单调用示例
 例：使用默认的UI

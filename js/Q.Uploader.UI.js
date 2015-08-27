@@ -2,16 +2,12 @@
 /*
 * Q.Uploader.UI.js 上传管理器界面
 * author:devin87@qq.com  
-* update:2015/07/15 10:11
+* update:2015/08/27 15:37
 */
 (function (window, undefined) {
     "use strict";
 
-    var isFunc = Q.isFunc,
-
-        def = Q.def,
-        fire = Q.fire,
-        extend = Q.extend,
+    var def = Q.def,
 
         getFirst = Q.getFirst,
         getLast = Q.getLast,
