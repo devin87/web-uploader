@@ -3,7 +3,7 @@
 * Q.Uploader.js 文件上传管理器 1.0
 * https://github.com/devin87/web-uploader
 * author:devin87@qq.com  
-* update:2015/08/27 15:37
+* update:2015/10/15 15:54
 */
 (function (window, undefined) {
     "use strict";
@@ -23,7 +23,7 @@
         setOpacity = Q.setOpacity,
         getOffset = Q.getOffset,
 
-        E = Q.Event,
+        E = Q.event,
         addEvent = E.add,
         triggerEvent = E.trigger,
         stopEvent = E.stop;

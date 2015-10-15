@@ -2,7 +2,7 @@
 /*
 * Q.Uploader.UI.js 上传管理器界面
 * author:devin87@qq.com  
-* update:2015/08/27 15:37
+* update:2015/10/15 15:54
 */
 (function (window, undefined) {
     "use strict";
@@ -16,7 +16,7 @@
         createEle = Q.createEle,
         formatSize = Q.formatSize,
 
-        E = Q.Event,
+        E = Q.event,
         addEvent = E.add,
 
         Uploader = Q.Uploader;

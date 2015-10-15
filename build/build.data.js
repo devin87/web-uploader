@@ -13,6 +13,10 @@ module.exports = {
             {
                 src: ["Q.js", "Q.Uploader.js", "Q.Uploader.UI.js"],
                 dest: "/Q.Uploader.all.js"
+            },
+            {
+                src: ["Q.Uploader.js", "Q.Uploader.UI.js"],
+                dest: "/Q.Uploader.js"
             }
         ],
 

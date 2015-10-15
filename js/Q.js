@@ -1,7 +1,7 @@
 ﻿/*
 * Q.js for Uploader
 * author:devin87@qq.com
-* update:2015/07/15 10:11
+* update:2015/10/15 15:54
 */
 (function (window, undefined) {
     "use strict";
@@ -340,7 +340,7 @@
         formatSize: formatSize
     };
 
-    Q.Event = {
+    Q.event = {
         fix: fix_event,
         stop: stop_event,
         trigger: trigger_event,
