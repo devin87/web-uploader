@@ -14,7 +14,7 @@ public class upload : IHttpHandler
         //接收上传的数据并保存到服务器
         for (int i = 0; i < c; i++)
         {
-            HttpPostedFile file = context.Request.Files[i];
+            HttpPostedFile file = request.Files[i];
 
             string fileName = request["fileName"];
             if (string.IsNullOrEmpty(fileName)) fileName = System.IO.Path.GetFileName(file.FileName);

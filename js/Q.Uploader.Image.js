@@ -2,7 +2,7 @@
 /*
 * Q.Uploader.Image.js 图片上传管理器界面
 * author:devin87@qq.com  
-* update:2015/10/26 14:29
+* update:2015/10/26 17:02
 */
 (function (window, undefined) {
     "use strict";
@@ -109,7 +109,7 @@
 
         if (Blob) return new Blob([new Uint8Array(arr)], { type: mimetype });
 
-        var builder = new BolbBuilder();
+        var builder = new BlobBuilder();
         builder.append(arr);
         return builder.getBlob(mimetype);
     }
