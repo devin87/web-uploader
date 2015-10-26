@@ -147,6 +147,36 @@ on: {
 }
 ```
 
+
+###手动操作(api)
+```
+var uploader = new Q.Uploader(ops);
+
+//添加上传任务，支持文件多选、input元素和文件对象 => input.files | input | file
+uploader.add(input_or_file);
+
+//批量添加上传任务 list => [input_or_file]
+uploader.addList(list);
+
+//手动开始上传（默认自动上传，实例化时可配置 ops.auto=false）
+uploader.start();
+
+//上传一个任务
+uploader.upload(task);
+
+//取消上传任务
+uploader.cancel(taskId);
+
+//移除上传任务，会先调用 uploader.cancel(taskId)
+uploader.remove(taskId);
+
+//更新上传进度
+//total  ： 总上传数据(byte)
+//loaded ： 已上传数据(byte)
+uploader.progress(task, total, loaded);
+
+```
+
 ###自定义UI实现
 可以在初始化时指定UI处理函数，亦可以通过扩展的方式实现
 ```

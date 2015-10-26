@@ -9,7 +9,7 @@ public class upload : IHttpHandler
     {
         HttpRequest request = context.Request;
 
-        int c = context.Request.Files.Count;
+        int c = request.Files.Count;
 
         //接收上传的数据并保存到服务器
         for (int i = 0; i < c; i++)
