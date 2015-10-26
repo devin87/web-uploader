@@ -12,11 +12,11 @@
 
 .u-name { min-width: 100px; color: #369; margin-right: 10px; }
 
+.u-size, .u-speed, .u-progress-bar, .u-detail, .u-state, .u-op { float: left; text-align: center; }
+
 .u-progress-bar, .u-progress { background: url(../images/progress.gif) repeat-x; }
 .u-progress-bar { width: 150px; height: 7px; overflow: hidden; margin: 15px 6px 0 0; padding: 1px 0; }
 .u-progress { width: 1px; height: 7px; background-position: 0 -9px; }
-
-.u-detail, .u-state, .u-size, .u-speed, .u-op { text-align: center; }
 
 .u-detail { width: 55px; }
 .u-state { min-width: 45px; }
