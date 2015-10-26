@@ -200,6 +200,7 @@ Uploader.extend({
             state,      //上传状态
 
 			disabled,   //若为true，表示禁止上传的文件
+			skip,       //若为true，表示要跳过的任务
 
 			//上传后会有如下属性（由于浏览器支持问题，以下部分属性可能不存在）
 			xhr,        //XMLHttpRequest对象（仅 html5）
