@@ -1,8 +1,379 @@
 ﻿/*
+* Q.js for Uploader
+* author:devin87@qq.com
+* update:2015/10/23 14:55
+*/
+(function (window, undefined) {
+    "use strict";
+
+    var toString = Object.prototype.toString,
+        has = Object.prototype.hasOwnProperty,
+        slice = Array.prototype.slice;
+
+    //若value不为undefine,则返回value;否则返回defValue
+    function def(value, defValue) {
+        return value !== undefined ? value : defValue;
+    }
+
+    //检测是否为函数
+    function isFunc(fn) {
+        //在ie11兼容模式（ie6-8）下存在bug,当调用次数过多时可能返回不正确的结果
+        //return typeof fn == "function";
+
+        return toString.call(fn) === "[object Function]";
+    }
+
+    //检测是否为正整数
+    function isUInt(n) {
+        return typeof n == "number" && n > 0 && n === Math.floor(n);
+    }
+
+    //触发指定函数,如果函数不存在,则不触发
+    function fire(fn, bind) {
+        if (isFunc(fn)) return fn.apply(bind, slice.call(arguments, 2));
+    }
+
+    //扩展对象
+    //forced:是否强制扩展
+    function extend(destination, source, forced) {
+        if (!destination || !source) return destination;
+
+        for (var key in source) {
+            if (key == undefined || !has.call(source, key)) continue;
+
+            if (forced || destination[key] === undefined) destination[key] = source[key];
+        }
+        return destination;
+    }
+
+    //Object.forEach
+    extend(Object, {
+        //遍历对象
+        forEach: function (obj, fn, bind) {
+            for (var key in obj) {
+                if (has.call(obj, key)) fn.call(bind, key, obj[key], obj);
+            }
+        }
+    });
+
+    extend(Date, {
+        //获取当前日期和时间所代表的毫秒数
+        now: function () {
+            return +new Date;
+        }
+    });
+
+    //-------------------------- browser ---------------------------
+    var browser_ie;
+
+    //ie11 开始不再保持向下兼容(例如,不再支持 ActiveXObject、attachEvent 等特性)
+    if (window.ActiveXObject || window.msIndexedDB) {
+        //window.ActiveXObject => ie10-
+        //window.msIndexedDB   => ie11+
+
+        browser_ie = document.documentMode || (!!window.XMLHttpRequest ? 7 : 6);
+    }
+
+    //-------------------------- json ---------------------------
+
+    //json解析
+    //secure:是否进行安全检测
+    function json_decode(text, secure) {
+        //安全检测
+        if (secure !== false && !/^[\],:{}\s]*$/.test(text.replace(/\\(?:["\\\/bfnrt]|u[0-9a-fA-F]{4})/g, "@").replace(/"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g, "]").replace(/(?:^|:|,)(?:\s*\[)+/g, ""))) throw new Error("JSON SyntaxError");
+        try {
+            return (new Function("return " + text))();
+        } catch (e) { }
+    }
+
+    if (!window.JSON) window.JSON = {};
+    if (!JSON.parse) JSON.parse = json_decode;
+
+    //-------------------------- DOM ---------------------------
+
+    //设置元素透明
+    function setOpacity(ele, value) {
+        if (value <= 1) value *= 100;
+
+        if (ele.style.opacity != undefined) ele.style.opacity = value / 100;
+        else if (ele.style.filter != undefined) ele.style.filter = "alpha(opacity=" + parseInt(value) + ")";
+    }
+
+    //获取元素绝对定位
+    function getOffset(ele, root) {
+        var left = 0, top = 0, width = ele.offsetWidth, height = ele.offsetHeight;
+
+        do {
+            left += ele.offsetLeft;
+            top += ele.offsetTop;
+            ele = ele.offsetParent;
+        } while (ele && ele != root);
+
+        return { left: left, top: top, width: width, height: height };
+    }
+
+    //遍历元素节点
+    function walk(ele, walk, start, all) {
+        var el = ele[start || walk];
+        var list = [];
+        while (el) {
+            if (el.nodeType == 1) {
+                if (!all) return el;
+                list.push(el);
+            }
+            el = el[walk];
+        }
+        return all ? list : null;
+    }
+
+    //获取上一个元素节点
+    function getPrev(ele) {
+        return ele.previousElementSibling || walk(ele, "previousSibling", null, false);
+    }
+
+    //获取下一个元素节点
+    function getNext(ele) {
+        return ele.nextElementSibling || walk(ele, "nextSibling", null, false);
+    }
+
+    //获取第一个元素子节点
+    function getFirst(ele) {
+        return ele.firstElementChild || walk(ele, "nextSibling", "firstChild", false);
+    }
+
+    //获取最后一个元素子节点
+    function getLast(ele) {
+        return ele.lastElementChild || walk(ele, "previousSibling", "lastChild", false);
+    }
+
+    //获取所有子元素节点
+    function getChilds(ele) {
+        return ele.children || walk(ele, "nextSibling", "firstChild", true);
+    }
+
+    //创建元素
+    function createEle(tagName, className, html) {
+        var ele = document.createElement(tagName);
+        if (className) ele.className = className;
+        if (html) ele.innerHTML = html;
+
+        return ele;
+    }
+
+    //解析html标签
+    function parseHTML(html, all) {
+        var box = createEle("div", "", html);
+        return all ? box.childNodes : getFirst(box);
+    }
+
+    //-------------------------- event ---------------------------
+
+    var addEvent,
+        removeEvent;
+
+    if (document.addEventListener) {  //w3c
+        addEvent = function (ele, type, fn) {
+            ele.addEventListener(type, fn, false);
+        };
+
+        removeEvent = function (ele, type, fn) {
+            ele.removeEventListener(type, fn, false);
+        };
+    } else if (document.attachEvent) {  //IE
+        addEvent = function (ele, type, fn) {
+            ele.attachEvent("on" + type, fn);
+        };
+
+        removeEvent = function (ele, type, fn) {
+            ele.detachEvent("on" + type, fn);
+        };
+    }
+
+    //event简单处理
+    function fix_event(event) {
+        var e = event || window.event;
+
+        //for ie
+        if (!e.target) e.target = e.srcElement;
+
+        return e;
+    }
+
+    //添加事件
+    function add_event(element, type, handler, once) {
+        var fn = function (e) {
+            handler.call(element, fix_event(e));
+
+            if (once) removeEvent(element, type, fn);
+        };
+
+        addEvent(element, type, fn);
+
+        if (!once) {
+            return {
+                //直接返回停止句柄 eg:var api=add_event();api.stop();
+                stop: function () {
+                    removeEvent(element, type, fn);
+                }
+            };
+        }
+    }
+
+    //触发事件
+    function trigger_event(ele, type) {
+        if (isFunc(ele[type])) ele[type]();
+        else if (ele.fireEvent) ele.fireEvent("on" + type);  //ie10-
+        else if (ele.dispatchEvent) {
+            var evt = document.createEvent("HTMLEvents");
+
+            //initEvent接受3个参数:事件类型,是否冒泡,是否阻止浏览器的默认行为
+            evt.initEvent(type, true, true);
+
+            //鼠标事件,设置更多参数
+            //var evt = document.createEvent("MouseEvents");
+            //evt.initMouseEvent(type, true, true, ele.ownerDocument.defaultView, 1, e.screenX, e.screenY, e.clientX, e.clientY, false, false, false, false, 0, null);
+
+            ele.dispatchEvent(evt);
+        }
+    }
+
+    //阻止事件默认行为并停止事件冒泡
+    function stop_event(event, isPreventDefault, isStopPropagation) {
+        var e = fix_event(event);
+
+        //阻止事件默认行为
+        if (isPreventDefault !== false) {
+            if (e.preventDefault) e.preventDefault();
+            else e.returnValue = false;
+        }
+
+        //停止事件冒泡
+        if (isStopPropagation !== false) {
+            if (e.stopPropagation) e.stopPropagation();
+            else e.cancelBubble = true;
+        }
+    }
+
+    //---------------------- other ----------------------
+
+    var RE_HTTP = /^https?:\/\//i;
+
+    //是否http路径(以 http:// 或 https:// 开头)
+    function isHttpURL(url) {
+        return RE_HTTP.test(url);
+    }
+
+    //判断指定路径与当前页面是否同域(包括协议检测 eg:http与https不同域)
+    function isSameHost(url) {
+        if (!isHttpURL(url)) return true;
+
+        var start = RegExp.lastMatch.length,
+            end = url.indexOf("/", start),
+            host = url.slice(0, end != -1 ? end : undefined);
+
+        return host.toLowerCase() == (location.protocol + "//" + location.host).toLowerCase();
+    }
+
+    //按照进制解析数字的层级 eg:时间转化 -> parseLevel(86400,[60,60,24]) => { value=1, level=3 }
+    //steps:步进,可以是固定的数字(eg:1024),也可以是具有层次关系的数组(eg:[60,60,24])
+    //limit:限制解析的层级,正整数,默认为100
+    function parseLevel(size, steps, limit) {
+        size = +size;
+        steps = steps || 1024;
+
+        var level = 0,
+            isNum = typeof steps == "number",
+            stepNow = 1,
+            count = isUInt(limit) ? limit : (isNum ? 100 : steps.length);
+
+        while (size >= stepNow && level < count) {
+            stepNow *= (isNum ? steps : steps[level]);
+            level++;
+        }
+
+        if (level && size < stepNow) {
+            stepNow /= (isNum ? steps : steps.last());
+            level--;
+        }
+
+        return { value: level ? size / stepNow : size, level: level };
+    }
+
+    var UNITS_FILE_SIZE = ["B", "KB", "MB", "GB", "TB", "PB", "EB"];
+
+    //格式化数字输出,将数字转为合适的单位输出,默认按照1024层级转为文件单位输出
+    function formatSize(size, ops) {
+        ops = ops === true ? { all: true } : ops || {};
+
+        if (isNaN(size) || size == undefined || size < 0) {
+            var error = ops.error || "--";
+
+            return ops.all ? { text: error } : error;
+        }
+
+        var pl = parseLevel(size, ops.steps, ops.limit),
+
+            value = pl.value,
+            text = value.toFixed(def(ops.digit, 2));
+
+        if (ops.trim !== false && text.lastIndexOf(".") != -1) text = text.replace(/\.?0+$/, "");
+
+        pl.text = text + (ops.join || "") + (ops.units || UNITS_FILE_SIZE)[pl.level + (ops.start || 0)];
+
+        return ops.all ? pl : pl.text;
+    }
+
+    //---------------------- export ----------------------
+
+    var Q = {
+        def: def,
+        isFunc: isFunc,
+        isUInt: isUInt,
+
+        fire: fire,
+        extend: extend,
+
+        ie: browser_ie,
+
+        setOpacity: setOpacity,
+        getOffset: getOffset,
+
+        walk: walk,
+        getPrev: getPrev,
+        getNext: getNext,
+        getFirst: getFirst,
+        getLast: getLast,
+        getChilds: getChilds,
+
+        createEle: createEle,
+        parseHTML: parseHTML,
+
+        isHttpURL: isHttpURL,
+        isSameHost: isSameHost,
+
+        parseLevel: parseLevel,
+        formatSize: formatSize
+    };
+
+    if (browser_ie) Q["ie" + (browser_ie < 6 ? 6 : browser_ie)] = true;
+
+    Q.event = {
+        fix: fix_event,
+        stop: stop_event,
+        trigger: trigger_event,
+
+        add: add_event
+    };
+
+    window.Q = Q;
+
+})(window);
+
+﻿/*
 * Q.Uploader.js 文件上传管理器 1.0
 * https://github.com/devin87/web-uploader
 * author:devin87@qq.com  
-* update:2015/10/15 15:54
+* update:2015/10/26 13:48
 */
 (function (window, undefined) {
     "use strict";
@@ -113,7 +484,7 @@
         //上传完毕,计算平均速度(Byte/s)
         if (loaded >= total) {
             tick = timeNow - task.timeStart;
-            if (tick) task.avg_speed = Math.min(Math.round(total * 1000 / tick), total);
+            if (tick) task.avgSpeed = Math.min(Math.round(total * 1000 / tick), total);
 
             task.timeEnd = timeNow;
             return;
@@ -539,7 +910,7 @@
         upload: function (task) {
             var self = this;
 
-            if (!task || task.state != UPLOAD_STATE_READY) return self.start();
+            if (!task || task.state != UPLOAD_STATE_READY || task.skip) return self.start();
 
             task.url = self.url;
             self.workerIdle--;
@@ -591,7 +962,8 @@
                 fd.append(k, v);
             });
 
-            fd.append(self.upName, task.file);
+            fd.append("fileName", task.name);
+            fd.append(self.upName, task.blob || task.file, task.name);
 
             xhr.open("POST", task.url);
 
@@ -738,24 +1110,22 @@
 })(window);
 
 ﻿/*
-* Q.Uploader.UI.js 上传管理器界面
+* Q.Uploader.Image.js 图片上传管理器界面
 * author:devin87@qq.com  
-* update:2015/10/15 15:54
+* update:2015/10/26 14:29
 */
 (function (window, undefined) {
     "use strict";
 
-    var def = Q.def,
-
-        getFirst = Q.getFirst,
-        getLast = Q.getLast,
+    var getFirst = Q.getFirst,
+        //getLast = Q.getLast,
         getNext = Q.getNext,
 
         createEle = Q.createEle,
-        formatSize = Q.formatSize,
+        //formatSize = Q.formatSize,
+        setOpacity = Q.setOpacity,
 
-        E = Q.event,
-        addEvent = E.add,
+        browser_ie = Q.ie,
 
         Uploader = Q.Uploader;
 
@@ -769,13 +1139,167 @@
         if (ele) ele.innerHTML = html || "";
     }
 
+    //生成图片预览地址(html5)
+    function readAsURL(file, callback) {
+        var URL = window.URL || window.webkitURL;
+        if (URL) return callback(URL.createObjectURL(file));
+
+        if (window.FileReader) {
+            var fr = new FileReader();
+            on(fr, "load", function (e) {
+                callback(e.target.result);
+            });
+            fr.readAsDataURL(file);
+        } else if (file.readAsDataURL) {
+            callback(file.readAsDataURL());
+        }
+    }
+
+    //图片预览
+    function previewImage(box, task, callback) {
+        var input = task.input,
+            file = task.file || (input.files ? input.files[0] : undefined);
+
+        if (file) {
+            //IE10+、Webkit、Firefox etc
+            readAsURL(file, function (src) {
+                if (src) box.innerHTML = '<img src="' + src + '" />';
+
+                callback && callback(src);
+            });
+        } else if (input) {
+            var src = input.value;
+
+            if (!src || /^\w:\\fakepath/.test(src)) {
+                input.select();
+                //解决ie报拒绝访问的问题
+                parent.document.body.focus();
+                //获取图片真实地址
+                if (document.selection) src = document.selection.createRange().text;
+            }
+
+            if (src) {
+                box.innerHTML = '<img src="' + src + '" />';
+
+                try {
+                    if (browser_ie > 6) box.style.filter = "progid:DXImageTransform.Microsoft.AlphaImageLoader(sizingMethod='scale',src='" + src + "')";
+                } catch (e) { }
+            }
+
+            callback && callback(src);
+        }
+    }
+
+    var Blob = window.Blob || window.WebkitBlob || window.MozBlob,
+        BlobBuilder = window.WebKitBlobBuilder || window.MozBlobBuilder;
+
+    var support_image_scale = (function () {
+        if (!window.FileReader || !window.atob || !(Blob || BlobBuilder)) return false;
+
+        var canvas = document.createElement("canvas");
+        return !!canvas.getContext && !!canvas.getContext("2d");
+    })();
+
+    //获取mimetype
+    function get_image_mimetype(ext) {
+        var type = ext.slice(1);
+        return "image/" + (type == "jpg" ? "jpeg" : type);
+    }
+
+    //将dataURL转为Blob对象，以用于ajax上传
+    function dataURLtoBlob(base64, mimetype) {
+        var ds = base64.split(','),
+            data = atob(ds[1]),
+
+            arr = [];
+
+        for (var i = 0, len = data.length; i < len; i++) {
+            arr[i] = data.charCodeAt(i);
+        }
+
+        if (Blob) return new Blob([new Uint8Array(arr)], { type: mimetype });
+
+        var builder = new BolbBuilder();
+        builder.append(arr);
+        return builder.getBlob(mimetype);
+    }
+
+    //图片缩放
+    function scaleImage(src, mimetype, ops, callback) {
+        var image = new Image();
+        image.src = src;
+
+        image.onload = function () {
+            var width = image.width,
+                height = image.height,
+
+                maxWidth = ops.maxWidth,
+                maxHeight = ops.maxHeight,
+
+                hasWidthScale = maxWidth && width > maxWidth,
+                hasHeightScale = maxHeight && height > maxHeight,
+
+                hasScale = hasWidthScale || hasHeightScale;
+
+            //无需压缩
+            if (!hasScale) return callback && callback(false);
+
+            //根据宽度缩放
+            if (hasWidthScale) {
+                width = maxWidth;
+                height = Math.floor(image.height * width / image.width);
+            }
+
+            //根据高度缩放
+            if (hasHeightScale) {
+                height = maxHeight;
+                width = Math.floor(image.width * height / image.height);
+            }
+
+            var canvas = document.createElement("canvas"),
+                ctx = canvas.getContext("2d");
+
+            canvas.width = width;
+            canvas.height = height;
+
+            ctx.drawImage(image, 0, 0, width, height);
+
+            callback && callback(canvas.toDataURL(mimetype), mimetype);
+        };
+    }
+
+    //默认图片格式
+    var DEF_IMAGE_TYPES = ".jpg,.png,.gif,.bmp,.webp,.tif,.tiff",
+        //默认缩放的图片类型
+        DEF_IMAGE_SCALE_TYPES = ".jpg";
+
+    //是否支持图片缩放
+    Uploader.support.imageScale = support_image_scale;
+
     //实现默认的UI接口
     Uploader.extend({
+        //初始化
         init: function () {
-            var boxView = this.ops.view;
-            if (!boxView) return;
+            var ops = this.ops,
+                boxView = ops.boxView;
 
-            addClass(boxView, this.html5 ? "html5" : "html4");
+            if (!ops.allows) ops.allows = DEF_IMAGE_TYPES;
+
+            if (boxView) addClass(boxView, this.html5 ? "html5" : "html4");
+        },
+
+        //是否支持图片压缩
+        supportScale: function (type) {
+            if (!support_image_scale) return false;
+
+            if (type == ".jpeg") type = ".jpg";
+
+            var types = (this.ops.scale || {}).types || DEF_IMAGE_SCALE_TYPES,
+                isImage = DEF_IMAGE_TYPES.indexOf(type) != -1;
+
+            if (!isImage) return false;
+
+            return types == "*" || types.indexOf(type) != -1;
         },
 
         //绘制任务UI
@@ -786,58 +1310,56 @@
 
             if (!boxView) return;
 
-            var ops_button = ops.button || {},
-
-                text_button_cancel = def(ops_button.cancel, "取消"),
-                text_button_remove = def(ops_button.remove, "删除"),
-
-                name = task.name;
+            var name = task.name;
 
             var html =
-                '<div class="fl">' +
-                    '<div class="u-name" title="' + name + '">' + name + '</div>' +
+                '<div class="u-img"></div>' +
+                '<div class="u-progress-bar">' +
+                    '<div class="u-progress"></div>' +
                 '</div>' +
-                '<div class="fr">' +
-                    '<div class="fl u-size"></div>' +
-                    '<div class="fl u-speed">--/s</div>' +
-                    '<div class="fl u-progress-bar">' +
-                        '<div class="u-progress" style="width:1%;"></div>' +
-                    '</div>' +
-                    '<div class="fl u-detail">0%</div>' +
-                    '<div class="fl u-state"></div>' +
-                    '<div class="fl u-op">' +
-                        '<a class="u-op-cancel">' + text_button_cancel + '</a>' +
-                        '<a class="u-op-remove">' + text_button_remove + '</a>' +
-                    '</div>' +
-                '</div>' +
-                '<div class="clear"></div>';
+                '<div class="u-detail"></div>' +
+                '<div class="u-name" title="' + name + '">' + name + '</div>';
 
             var taskId = task.id,
                 box = createEle("div", "u-item", html);
 
             box.taskId = taskId;
 
+            var boxImage = getFirst(box),
+                boxProgressbar = getNext(boxImage),
+                boxProgress = getFirst(boxProgressbar),
+                boxDetail = getNext(boxProgressbar);
+
+            var scale_data = task.scale || ops.scale,
+                support_scale = scale_data && self.supportScale(task.ext);
+
+            if (support_scale) task.skip = true;
+
+            previewImage(boxImage, task, function (src) {
+                self.fire("preview", src);
+
+                if (!src || !support_scale) return;
+
+                scaleImage(src, get_image_mimetype(task.ext), scale_data, function (base64, mimetype) {
+                    if (!base64) return;
+
+                    var blob = dataURLtoBlob(base64, mimetype);
+                    task.blob = blob;
+                    task.skip = false;
+                    self.list.push(task);
+                    if (self.auto) self.start();
+                });
+            });
+
+            setOpacity(boxProgressbar, 0.3);
+            setOpacity(boxProgress, 0.5);
+
             task.box = box;
+            task.boxProgress = boxProgress;
+            task.boxDetail = boxDetail;
 
             //添加到视图中
             boxView.appendChild(box);
-
-            //---------------- 事件绑定 ----------------
-            var boxButton = getLast(box.childNodes[1]),
-                buttonCancel = getFirst(boxButton),
-                buttonRemove = getLast(boxButton);
-
-            //取消上传任务
-            addEvent(buttonCancel, "click", function () {
-                self.cancel(taskId);
-            });
-
-            //移除上传任务
-            addEvent(buttonRemove, "click", function () {
-                self.remove(taskId);
-
-                boxView.removeChild(box);
-            });
 
             //---------------- 更新UI ----------------
             self.update(task);
@@ -847,29 +1369,19 @@
         update: function (task) {
             if (!task || !task.box) return;
 
-            var total = task.total || task.size,
+            var self = this,
+
+                total = task.total || task.size,
                 loaded = task.loaded,
 
-                state = task.state;
+                state = task.state,
 
-            var box = task.box,
-                boxInfo = box.childNodes[1],
-                boxSize = getFirst(boxInfo),
-                boxSpeed = getNext(boxSize),
-                boxProgressbar = getNext(boxSpeed),
-                boxProgress = getFirst(boxProgressbar),
-                boxDetail = getNext(boxProgressbar),
-                boxState = getNext(boxDetail);
+                boxProgress = task.boxProgress,
+                boxDetail = task.boxDetail,
 
-            //更新任务状态
-            setHtml(boxState, Uploader.getStatusText(state));
+                html_detail = Uploader.getStatusText(state);
 
-            if (total < 0) return;
-
-            var html_size = '';
-
-            //更新上传进度(for html5)
-            if (this.html5 && loaded != undefined && loaded >= 0) {
+            if (self.html5 && loaded != undefined && loaded >= 0) {
                 var percentText;
 
                 if (state == Uploader.PROCESSING) {
@@ -885,23 +1397,13 @@
                 //进度百分比
                 if (percentText) {
                     percentText += "%";
+                    html_detail += " " + percentText;
 
                     boxProgress.style.width = percentText;
-                    setHtml(boxDetail, percentText);
                 }
-
-                //已上传的文件大小
-                html_size = '<span class="u-loaded">' + formatSize(loaded) + '</span> / ';
-
-                //上传速度;
-                var speed = task.avg_speed || task.speed;
-                setHtml(boxSpeed, formatSize(speed) + "/s");
             }
 
-            //文件总大小
-            html_size += '<span class="u-total">' + formatSize(total) + '</span>';
-
-            setHtml(boxSize, html_size);
+            setHtml(boxDetail, html_detail);
         },
 
         //上传完毕

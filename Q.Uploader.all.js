@@ -1,7 +1,7 @@
 ﻿/*
 * Q.js for Uploader
 * author:devin87@qq.com
-* update:2015/10/15 15:54
+* update:2015/10/23 14:55
 */
 (function (window, undefined) {
     "use strict";
@@ -36,7 +36,7 @@
     //扩展对象
     //forced:是否强制扩展
     function extend(destination, source, forced) {
-        if (!destination || !source) return;
+        if (!destination || !source) return destination;
 
         for (var key in source) {
             if (key == undefined || !has.call(source, key)) continue;
@@ -62,6 +62,19 @@
             return +new Date;
         }
     });
+
+    //-------------------------- browser ---------------------------
+    var browser_ie;
+
+    //ie11 开始不再保持向下兼容(例如,不再支持 ActiveXObject、attachEvent 等特性)
+    if (window.ActiveXObject || window.msIndexedDB) {
+        //window.ActiveXObject => ie10-
+        //window.msIndexedDB   => ie11+
+
+        browser_ie = document.documentMode || (!!window.XMLHttpRequest ? 7 : 6);
+    }
+
+    //-------------------------- json ---------------------------
 
     //json解析
     //secure:是否进行安全检测
@@ -320,6 +333,8 @@
         fire: fire,
         extend: extend,
 
+        ie: browser_ie,
+
         setOpacity: setOpacity,
         getOffset: getOffset,
 
@@ -340,6 +355,8 @@
         formatSize: formatSize
     };
 
+    if (browser_ie) Q["ie" + (browser_ie < 6 ? 6 : browser_ie)] = true;
+
     Q.event = {
         fix: fix_event,
         stop: stop_event,
@@ -356,7 +373,7 @@
 * Q.Uploader.js 文件上传管理器 1.0
 * https://github.com/devin87/web-uploader
 * author:devin87@qq.com  
-* update:2015/10/15 15:54
+* update:2015/10/26 13:48
 */
 (function (window, undefined) {
     "use strict";
@@ -467,7 +484,7 @@
         //上传完毕,计算平均速度(Byte/s)
         if (loaded >= total) {
             tick = timeNow - task.timeStart;
-            if (tick) task.avg_speed = Math.min(Math.round(total * 1000 / tick), total);
+            if (tick) task.avgSpeed = Math.min(Math.round(total * 1000 / tick), total);
 
             task.timeEnd = timeNow;
             return;
@@ -893,7 +910,7 @@
         upload: function (task) {
             var self = this;
 
-            if (!task || task.state != UPLOAD_STATE_READY) return self.start();
+            if (!task || task.state != UPLOAD_STATE_READY || task.skip) return self.start();
 
             task.url = self.url;
             self.workerIdle--;
@@ -945,7 +962,8 @@
                 fd.append(k, v);
             });
 
-            fd.append(self.upName, task.file);
+            fd.append("fileName", task.name);
+            fd.append(self.upName, task.blob || task.file, task.name);
 
             xhr.open("POST", task.url);
 
@@ -1094,7 +1112,7 @@
 ﻿/*
 * Q.Uploader.UI.js 上传管理器界面
 * author:devin87@qq.com  
-* update:2015/10/15 15:54
+* update:2015/10/16 11:30
 */
 (function (window, undefined) {
     "use strict";
@@ -1152,14 +1170,14 @@
                     '<div class="u-name" title="' + name + '">' + name + '</div>' +
                 '</div>' +
                 '<div class="fr">' +
-                    '<div class="fl u-size"></div>' +
-                    '<div class="fl u-speed">--/s</div>' +
-                    '<div class="fl u-progress-bar">' +
+                    '<div class="u-size"></div>' +
+                    '<div class="u-speed">--/s</div>' +
+                    '<div class="u-progress-bar">' +
                         '<div class="u-progress" style="width:1%;"></div>' +
                     '</div>' +
-                    '<div class="fl u-detail">0%</div>' +
-                    '<div class="fl u-state"></div>' +
-                    '<div class="fl u-op">' +
+                    '<div class="u-detail">0%</div>' +
+                    '<div class="u-state"></div>' +
+                    '<div class="u-op">' +
                         '<a class="u-op-cancel">' + text_button_cancel + '</a>' +
                         '<a class="u-op-remove">' + text_button_remove + '</a>' +
                     '</div>' +
@@ -1248,7 +1266,7 @@
                 html_size = '<span class="u-loaded">' + formatSize(loaded) + '</span> / ';
 
                 //上传速度;
-                var speed = task.avg_speed || task.speed;
+                var speed = task.avgSpeed || task.speed;
                 setHtml(boxSpeed, formatSize(speed) + "/s");
             }
 

@@ -7,6 +7,8 @@ public class upload : IHttpHandler
 {
     public void ProcessRequest(HttpContext context)
     {
+        HttpRequest request = context.Request;
+
         int c = context.Request.Files.Count;
 
         //接收上传的数据并保存到服务器
@@ -14,12 +16,14 @@ public class upload : IHttpHandler
         {
             HttpPostedFile file = context.Request.Files[i];
 
-            string fileName = System.IO.Path.GetFileName(file.FileName);
+            string fileName = request["fileName"];
+            if (string.IsNullOrEmpty(fileName)) fileName = System.IO.Path.GetFileName(file.FileName);
+
             string path = context.Server.MapPath("~/upload/" + fileName);
             file.SaveAs(path);
         }
 
-        HttpRequest request = context.Request;
+
         string type = request["type"];
         string user = request["user"];
         string name = request["name"];

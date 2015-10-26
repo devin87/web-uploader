@@ -2,7 +2,7 @@
 /*
 * Q.Uploader.UI.js 上传管理器界面
 * author:devin87@qq.com  
-* update:2015/10/15 15:54
+* update:2015/10/16 11:30
 */
 (function (window, undefined) {
     "use strict";
@@ -60,14 +60,14 @@
                     '<div class="u-name" title="' + name + '">' + name + '</div>' +
                 '</div>' +
                 '<div class="fr">' +
-                    '<div class="fl u-size"></div>' +
-                    '<div class="fl u-speed">--/s</div>' +
-                    '<div class="fl u-progress-bar">' +
+                    '<div class="u-size"></div>' +
+                    '<div class="u-speed">--/s</div>' +
+                    '<div class="u-progress-bar">' +
                         '<div class="u-progress" style="width:1%;"></div>' +
                     '</div>' +
-                    '<div class="fl u-detail">0%</div>' +
-                    '<div class="fl u-state"></div>' +
-                    '<div class="fl u-op">' +
+                    '<div class="u-detail">0%</div>' +
+                    '<div class="u-state"></div>' +
+                    '<div class="u-op">' +
                         '<a class="u-op-cancel">' + text_button_cancel + '</a>' +
                         '<a class="u-op-remove">' + text_button_remove + '</a>' +
                     '</div>' +
@@ -156,7 +156,7 @@
                 html_size = '<span class="u-loaded">' + formatSize(loaded) + '</span> / ';
 
                 //上传速度;
-                var speed = task.avg_speed || task.speed;
+                var speed = task.avgSpeed || task.speed;
                 setHtml(boxSpeed, formatSize(speed) + "/s");
             }
 

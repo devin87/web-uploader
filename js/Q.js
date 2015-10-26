@@ -1,7 +1,7 @@
 ﻿/*
 * Q.js for Uploader
 * author:devin87@qq.com
-* update:2015/10/15 15:54
+* update:2015/10/23 14:55
 */
 (function (window, undefined) {
     "use strict";
@@ -36,7 +36,7 @@
     //扩展对象
     //forced:是否强制扩展
     function extend(destination, source, forced) {
-        if (!destination || !source) return;
+        if (!destination || !source) return destination;
 
         for (var key in source) {
             if (key == undefined || !has.call(source, key)) continue;
@@ -62,6 +62,19 @@
             return +new Date;
         }
     });
+
+    //-------------------------- browser ---------------------------
+    var browser_ie;
+
+    //ie11 开始不再保持向下兼容(例如,不再支持 ActiveXObject、attachEvent 等特性)
+    if (window.ActiveXObject || window.msIndexedDB) {
+        //window.ActiveXObject => ie10-
+        //window.msIndexedDB   => ie11+
+
+        browser_ie = document.documentMode || (!!window.XMLHttpRequest ? 7 : 6);
+    }
+
+    //-------------------------- json ---------------------------
 
     //json解析
     //secure:是否进行安全检测
@@ -320,6 +333,8 @@
         fire: fire,
         extend: extend,
 
+        ie: browser_ie,
+
         setOpacity: setOpacity,
         getOffset: getOffset,
 
@@ -339,6 +354,8 @@
         parseLevel: parseLevel,
         formatSize: formatSize
     };
+
+    if (browser_ie) Q["ie" + (browser_ie < 6 ? 6 : browser_ie)] = true;
 
     Q.event = {
         fix: fix_event,

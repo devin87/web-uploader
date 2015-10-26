@@ -3,7 +3,7 @@
 * Q.Uploader.js 文件上传管理器 1.0
 * https://github.com/devin87/web-uploader
 * author:devin87@qq.com  
-* update:2015/10/15 15:54
+* update:2015/10/26 13:48
 */
 (function (window, undefined) {
     "use strict";
@@ -114,7 +114,7 @@
         //上传完毕,计算平均速度(Byte/s)
         if (loaded >= total) {
             tick = timeNow - task.timeStart;
-            if (tick) task.avg_speed = Math.min(Math.round(total * 1000 / tick), total);
+            if (tick) task.avgSpeed = Math.min(Math.round(total * 1000 / tick), total);
 
             task.timeEnd = timeNow;
             return;
@@ -540,7 +540,7 @@
         upload: function (task) {
             var self = this;
 
-            if (!task || task.state != UPLOAD_STATE_READY) return self.start();
+            if (!task || task.state != UPLOAD_STATE_READY || task.skip) return self.start();
 
             task.url = self.url;
             self.workerIdle--;
@@ -592,7 +592,8 @@
                 fd.append(k, v);
             });
 
-            fd.append(self.upName, task.file);
+            fd.append("fileName", task.name);
+            fd.append(self.upName, task.blob || task.file, task.name);
 
             xhr.open("POST", task.url);
 

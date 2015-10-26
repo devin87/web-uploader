@@ -15,8 +15,8 @@ module.exports = {
                 dest: "/Q.Uploader.all.js"
             },
             {
-                src: ["Q.Uploader.js", "Q.Uploader.UI.js"],
-                dest: "/Q.Uploader.js"
+                src: ["Q.js", "Q.Uploader.js", "Q.Uploader.Image.js"],
+                dest: "/Q.Uploader.image.all.js"
             }
         ],
 

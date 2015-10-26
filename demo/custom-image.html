@@ -1,0 +1,61 @@
+﻿<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>文件上传</title>
+    <link href="demo.css" rel="stylesheet" type="text/css" />
+    <link href="../css/uploader-image.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+    <div id="header" class="header">Header</div>
+    <div class="main">
+        <div id="sidebar" class="sidebar"></div>
+        <div class="content">
+            <div>
+                <a id="upload-target" class="x-button">添加图片并上传</a>
+            </div>
+            <div id="upload-info"></div>
+        </div>
+    </div>
+
+    <script type="text/javascript" src="demo.js"></script>
+
+    <script type="text/javascript" src="../js/Q.js"></script>
+    <script type="text/javascript" src="../js/Q.Uploader.js"></script>
+    <script type="text/javascript" src="../js/Q.Uploader.Image.js"></script>
+
+    <script type="text/javascript">
+        var Uploader = Q.Uploader,
+            formatSize = Q.formatSize,
+            boxView = document.getElementById("upload-info");
+
+        var uploader = new Uploader({
+            url: UPLOAD_URL,
+            target: document.getElementById("upload-target"),
+            view: boxView,
+            //auto: false,
+
+            allows: ".jpg,.png,.gif,.bmp",
+
+            //图片缩放
+            scale: {
+                //要缩放的图片格式
+                types: ".jpg",
+                //最大图片大小(width|height)
+                maxWidth: 1024
+            },
+
+            on: {
+                //添加之前触发
+                add: function (task) {
+                    if (task.disabled) return alert("允许上传的文件格式为：" + this.ops.allows);
+                }
+            }
+        });
+
+        //将auto配置为false以手动上传
+        //uploader.start();
+    </script>
+</body>
+</html>

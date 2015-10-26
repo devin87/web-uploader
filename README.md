@@ -1,12 +1,13 @@
 web-uploader
 ============
 
-js (html5 + html4) 文件上传管理器，支持上传进度显示，支持 IE6+、Firefox、Chrome等，[博客园详细介绍](http://www.cnblogs.com/devin87/p/web-uploader.html)
+js (html5 + html4) 文件上传管理器，支持上传进度显示，支持图片预览+缩放，支持 IE6+、Firefox、Chrome等，[博客园详细介绍](http://www.cnblogs.com/devin87/p/web-uploader.html)
 
 ###特点：
 <ul>
 	<li>轻量级，不依赖任何JS库，核心代码（Q.Uploader.js）仅约700行，min版本加起来不到12KB</li>
 	<li>纯JS代码，无需Flash，无需更改后台代码即可实现带进度条（IE10+、其它标准浏览器）的上传，其它（eg：IE6+）自动降级为传统方式上传</li>
+	<li>单独的图片上传UI，支持图片预览（IE6+、其它浏览器）和缩放（IE10+、其它浏览器）</li>
 	<li>上传核心与UI界面分离，可以很方便的定制上传界面包括上传按钮</li>
 	<li>上传文件的同时可以指定上传参数，支持上传类型过滤</li>
 	<li>完善的事件回调，可针对上传的每个过程进行单独处理</li>
@@ -24,7 +25,7 @@ iis
 Node.js 演示见[web-uploader-node](https://github.com/devin87/web-uploader-node)
 
 ###简单调用示例
-例：使用默认的UI
+例：一般文件上传，使用默认的UI
 ```
 1. 导入样式文件(若自己实现UI接口，则无需导入默认的样式文件)
 <link href="css/uploader.css" rel="stylesheet" type="text/css" />
@@ -34,12 +35,47 @@ Node.js 演示见[web-uploader-node](https://github.com/devin87/web-uploader-nod
 <script type="text/javascript" src="js/Q.Uploader.js"></script>
 <script type="text/javascript" src="js/Q.Uploader.UI.js"></script>
 
+或
+<script type="text/javascript" src="Q.Uploader.all.js"></script>
+
 3. 调用
 new Q.Uploader({
 	url:"api/upload.ashx",
 
 	target: element,    //上传按钮
 	view: element       //上传任务视图
+});
+```
+
+例：图片上传+预览+缩放
+```
+1. 导入样式文件(若自己实现UI接口，则无需导入默认的样式文件)
+<link href="css/uploader-image.css" rel="stylesheet" type="text/css" />
+
+2. 导入js文件（可自行合并）
+<script type="text/javascript" src="js/Q.js"></script>
+<script type="text/javascript" src="js/Q.Uploader.js"></script>
+<script type="text/javascript" src="js/Q.Uploader.Image.js"></script>
+
+或
+<script type="text/javascript" src="Q.Uploader.image.all.js"></script>
+
+3. 调用
+new Q.Uploader({
+	url:"api/upload.ashx",
+
+	target: element,    //上传按钮
+	view: element,      //上传任务视图
+
+    allows: ".jpg,.png,.gif,.bmp",
+
+    //图片缩放
+    scale: {
+        //要缩放的图片格式
+        types: ".jpg",
+        //最大图片宽度（maxWidth）或高度（maxHeight）
+        maxWidth: 1024
+    }
 });
 ```
 
@@ -142,7 +178,7 @@ Uploader.extend({
 			loaded,     //已上传大小（单位：Byte）
 			speed,      //上传速度（单位：Byte/s）
 
-			avg_speed,  //平均上传速度（仅上传完毕）
+			avgSpeed,   //平均上传速度（仅上传完毕）
 
 			timeStart,  //开始上传的时间
 			timeEnd,    //结束上传的时间（仅上传完毕）
