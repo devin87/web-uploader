@@ -1112,7 +1112,7 @@
 ﻿/*
 * Q.Uploader.Image.js 图片上传管理器界面
 * author:devin87@qq.com  
-* update:2015/10/26 17:02
+* update:2015/10/27 09:26
 */
 (function (window, undefined) {
     "use strict";
@@ -1146,9 +1146,9 @@
 
         if (window.FileReader) {
             var fr = new FileReader();
-            on(fr, "load", function (e) {
+            fr.onload = function (e) {
                 callback(e.target.result);
-            });
+            };
             fr.readAsDataURL(file);
         } else if (file.readAsDataURL) {
             callback(file.readAsDataURL());
