@@ -1,7 +1,10 @@
 web-uploader
 ============
 
-js (html5 + html4) 文件上传管理器，支持上传进度显示，支持图片预览+缩放，支持 IE6+、Firefox、Chrome等，[博客园详细介绍](http://www.cnblogs.com/devin87/p/web-uploader.html)
+js (html5 + html4) 文件上传管理器，支持上传进度显示，支持图片预览+缩放，支持 IE6+、Firefox、Chrome等。
+
+[博客园详细介绍](http://www.cnblogs.com/devin87/p/web-uploader.html)
+[图片上传介绍](http://www.cnblogs.com/devin87/p/web-uploader-image.html)
 
 ###特点：
 <ul>
