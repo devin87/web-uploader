@@ -91,6 +91,13 @@
 
                     log("服务器返回:  " + (task.response || ""));
                     log();
+
+                    //this.list  为上传任务列表
+                    //this.index 为当前上传任务索引
+                    if (this.index >= this.list.length - 1) {
+                        //所有任务上传完成
+                        log("所有任务上传完成：" + new Date());
+                    }
                 }
             }
         });
