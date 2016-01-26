@@ -156,6 +156,12 @@ on: {
 ```
 var uploader = new Q.Uploader(ops);
 
+//上传任务列表，数组
+uploader.list
+
+//当前上传任务索引 => var task = uploader.list[uploader.index];
+uploader.index
+
 //添加上传任务，支持文件多选、input元素和文件对象 => input.files | input | file
 uploader.add(input_or_file);
 
