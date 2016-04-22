@@ -15,7 +15,7 @@
             <div>
                 <a id="upload-target" class="x-button">添加图片并上传</a>
             </div>
-            <div id="upload-view"></div>
+            <div id="upload-image-view" class="clearfix"></div>
             <div id="log"></div>
         </div>
     </div>
@@ -33,7 +33,7 @@
 
         var Uploader = Q.Uploader,
             formatSize = Q.formatSize,
-            boxView = document.getElementById("upload-view");
+            boxView = document.getElementById("upload-image-view");
 
         var uploader = new Uploader({
             url: UPLOAD_URL,
@@ -60,7 +60,7 @@
                 preview: function (data) {
                     log(data.task.name + " : " + data.src);
                 },
-                //图片压缩后触发
+                //图片压缩后触发,如果图片或浏览器不支持压缩,则不触发
                 scale: function (data) {
                     log(data.task.name + " : 已压缩！");
                 }

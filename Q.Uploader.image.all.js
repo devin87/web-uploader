@@ -1114,7 +1114,7 @@
 ﻿/*
 * Q.Uploader.Image.js 图片上传管理器界面
 * author:devin87@qq.com  
-* update:2016/04/22 15:37
+* update:2016/04/22 16:07
 */
 (function (window, undefined) {
     "use strict";
