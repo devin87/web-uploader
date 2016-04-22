@@ -2,7 +2,7 @@
 /*
 * Q.Uploader.Image.js 图片上传管理器界面
 * author:devin87@qq.com  
-* update:2015/10/27 09:26
+* update:2016/04/22 15:37
 */
 (function (window, undefined) {
     "use strict";
@@ -83,6 +83,7 @@
     var Blob = window.Blob || window.WebkitBlob || window.MozBlob,
         BlobBuilder = window.WebKitBlobBuilder || window.MozBlobBuilder;
 
+    //是否支持图片缩放
     var support_image_scale = (function () {
         if (!window.FileReader || !window.atob || !(Blob || BlobBuilder)) return false;
 
@@ -166,6 +167,10 @@
     //是否支持图片缩放
     Uploader.support.imageScale = support_image_scale;
 
+    Uploader.previewImage = previewImage;
+    Uploader.scaleImage = scaleImage;
+
+
     //实现默认的UI接口
     Uploader.extend({
         //初始化
@@ -190,6 +195,36 @@
             if (!isImage) return false;
 
             return types == "*" || types.indexOf(type) != -1;
+        },
+
+        //预览并压缩图片
+        previewImage: function (boxImage, task, ops) {
+            var self = this,
+                scale_data = task.scale || ops.scale,
+                support_scale = scale_data && self.supportScale(task.ext);
+
+            if (support_scale) task.skip = true;
+
+            previewImage(boxImage, task, function (src) {
+                self.fire("preview", { task: task, src: src });
+
+                if (!src || !support_scale) return;
+
+                scaleImage(src, get_image_mimetype(task.ext), scale_data, function (base64, mimetype) {
+                    if (!base64) return;
+
+                    var blob = dataURLtoBlob(base64, mimetype);
+                    task.blob = blob;
+                    task.skip = false;
+                    self.list.push(task);
+
+                    self.fire("scale", { task: task, base64: base64, type: mimetype, blob: blob });
+
+                    if (self.auto) self.start();
+                });
+            });
+
+            return self;
         },
 
         //绘制任务UI
@@ -220,27 +255,6 @@
                 boxProgress = getFirst(boxProgressbar),
                 boxDetail = getNext(boxProgressbar);
 
-            var scale_data = task.scale || ops.scale,
-                support_scale = scale_data && self.supportScale(task.ext);
-
-            if (support_scale) task.skip = true;
-
-            previewImage(boxImage, task, function (src) {
-                self.fire("preview", src);
-
-                if (!src || !support_scale) return;
-
-                scaleImage(src, get_image_mimetype(task.ext), scale_data, function (base64, mimetype) {
-                    if (!base64) return;
-
-                    var blob = dataURLtoBlob(base64, mimetype);
-                    task.blob = blob;
-                    task.skip = false;
-                    self.list.push(task);
-                    if (self.auto) self.start();
-                });
-            });
-
             setOpacity(boxProgressbar, 0.3);
             setOpacity(boxProgress, 0.5);
 
@@ -251,8 +265,8 @@
             //添加到视图中
             boxView.appendChild(box);
 
-            //---------------- 更新UI ----------------
-            self.update(task);
+            //---------------- 预览图片并更新UI ----------------
+            self.previewImage(boxImage, task, ops).update(task);
         },
 
         //更新任务界面

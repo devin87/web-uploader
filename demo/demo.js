@@ -17,7 +17,7 @@
     var list_page = [
         { title: "默认上传", href: "default.html" },
         { title: "简单上传", href: "simple.html" },
-        { title: "仅上传图片", href: "simple-image.html" },
+        { title: "指定上传类型", href: "simple-filetype.html" },
         { title: "图片预览+缩放+上传", href: "custom-image.html" },
         { title: "html4+滚动区域", href: "scroll-view.html" },
         { title: "文件单选", href: "simple-single.html" },

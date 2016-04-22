@@ -15,7 +15,8 @@
             <div>
                 <a id="upload-target" class="x-button">添加图片并上传</a>
             </div>
-            <div id="upload-info"></div>
+            <div id="upload-view"></div>
+            <div id="log"></div>
         </div>
     </div>
 
@@ -26,9 +27,13 @@
     <script type="text/javascript" src="../js/Q.Uploader.Image.js"></script>
 
     <script type="text/javascript">
+        function log(msg) {
+            document.getElementById("log").innerHTML += (msg != undefined ? msg : "") + "<br />";
+        }
+
         var Uploader = Q.Uploader,
             formatSize = Q.formatSize,
-            boxView = document.getElementById("upload-info");
+            boxView = document.getElementById("upload-view");
 
         var uploader = new Uploader({
             url: UPLOAD_URL,
@@ -50,6 +55,14 @@
                 //添加之前触发
                 add: function (task) {
                     if (task.disabled) return alert("允许上传的文件格式为：" + this.ops.allows);
+                },
+                //图片预览后触发
+                preview: function (data) {
+                    log(data.task.name + " : " + data.src);
+                },
+                //图片压缩后触发
+                scale: function (data) {
+                    log(data.task.name + " : 已压缩！");
                 }
             }
         });

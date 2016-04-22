@@ -3,7 +3,7 @@
 * Q.Uploader.js 文件上传管理器 1.0
 * https://github.com/devin87/web-uploader
 * author:devin87@qq.com  
-* update:2015/10/26 13:48
+* update:2016/04/22 14:58
 */
 (function (window, undefined) {
     "use strict";
@@ -325,15 +325,9 @@
         resetInput: function () {
             var self = this,
 
-                boxInput = self.boxInput,
-                target = self.target,
+                boxInput = self.boxInput;
 
-                inputWidth = target.offsetWidth,
-                inputHeight = target.offsetHeight;
-
-            boxInput.innerHTML = '<input type="file" name="' + self.upName + '" style="' + (self.clickTrigger ? 'visibility: hidden;' : 'width:' + inputWidth + 'px;height:' + inputHeight + 'px;font-size:100px;') + '"' + (self.multiple ? ' multiple="multiple"' : '') + '>';
-            boxInput.style.width = inputWidth + "px";
-            boxInput.style.height = inputHeight + "px";
+            boxInput.innerHTML = '<input type="file" name="' + self.upName + '" style="' + (self.clickTrigger ? 'visibility: hidden;' : 'font-size:100px;') + '"' + (self.multiple ? ' multiple="multiple"' : '') + '>';
 
             var inputFile = getFirst(boxInput);
 
@@ -347,26 +341,34 @@
 
             self.inputFile = inputFile;
 
-            self.updatePos();
-
-            return self;
+            return self.updatePos();
         },
         //更新上传按钮坐标(for ie)
         updatePos: function (has_more_uploader) {
-            if (this.clickTrigger) return;
+            var self = this;
+            if (self.clickTrigger) return self;
 
-            var getPos = this.getPos || getOffset;
+            var getPos = self.getPos || getOffset,
 
-            var boxInput = this.boxInput,
-                target = this.target,
+                boxInput = self.boxInput,
+                inputFile = getFirst(boxInput),
+                target = self.target,
 
-                pos = target.offsetWidth == 0 ? { left: -10000, top: -10000 } : getPos(target);
+                inputWidth = target.offsetWidth,
+                inputHeight = target.offsetHeight,
+
+                pos = inputWidth == 0 ? { left: -10000, top: -10000 } : getPos(target);
+
+            boxInput.style.width = inputFile.style.width = inputWidth + "px";
+            boxInput.style.height = inputFile.style.height = inputHeight + "px";
 
             boxInput.style.left = pos.left + "px";
             boxInput.style.top = pos.top + "px";
 
             //多用于选项卡切换中上传按钮位置重复的情况
             if (has_more_uploader) boxInput.style.zIndex = ++UPLOAD_HTML4_ZINDEX;
+
+            return self;
         },
         //触发ops上定义的回调方法,优先触发异步回调(以Async结尾)
         fire: function (action, arg, callback) {
