@@ -44,7 +44,10 @@ module.exports = {
             ],
 
             //可针对单一的文件配置 before、after,def 表示默认
-            before: "//devin87@qq.com\n//build:%NOW%\n"
+            before: [{
+                "def": "//devin87@qq.com\n//build:%NOW%\n",
+                "spark-md5.js": "//spark-md5 v2.0.2 https://github.com/satazor/js-spark-md5\n//build:%NOW%\n"
+            }]
         }
     ],
 

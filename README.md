@@ -1,7 +1,7 @@
 web-uploader
 ============
 
-js (html5 + html4) 文件上传管理器，支持上传进度显示，支持图片预览+缩放，支持 IE6+、Firefox、Chrome等。
+js (html5 + html4) 文件上传管理器，支持上传进度显示，支持秒传+分片上传+断点续传，支持图片预览+缩放，支持 IE6+、Firefox、Chrome等。
 
 [博客园详细介绍](http://www.cnblogs.com/devin87/p/web-uploader.html)
 
@@ -12,10 +12,10 @@ js (html5 + html4) 文件上传管理器，支持上传进度显示，支持图�
 	<li>轻量级，不依赖任何JS库，核心代码（Q.Uploader.js）仅约700行，min版本加起来不到12KB</li>
 	<li>纯JS代码，无需Flash，无需更改后台代码即可实现带进度条（IE10+、其它标准浏览器）的上传，其它（eg：IE6+）自动降级为传统方式上传</li>
 	<li>单独的图片上传UI，支持图片预览（IE6+、其它浏览器）和缩放（IE10+、其它浏览器）</li>
-	<li>上传核心与UI界面分离，可以很方便的定制上传界面包括上传按钮</li>
+	<li>支持秒传+分片上传+断点续传，适应多种上传环境（默认基于md5，不限于浏览器和使用场景，只要文件相同即可；也可自行实现hash计算）</li>
 	<li>上传文件的同时可以指定上传参数，支持上传类型过滤</li>
 	<li>完善的事件回调，可针对上传的每个过程进行单独处理</li>
-	<li>方便的UI接口，上传界面可以随心所欲的定制</li>
+	<li>上传核心与UI界面分离，方便的UI接口，可以很方便的定制上传界面包括上传按钮</li>
 </ul>
 
 ###演示环境（其它语言可自行实现服务端接收和网站部署）
@@ -110,6 +110,13 @@ new Q.Uploader({
 	allows: "",        //允许上传的文件类型(扩展名),多个之间用逗号隔开
 	disallows: "",     //禁止上传的文件类型(扩展名)
 
+	//秒传+分片上传+断点续传,具体见示例（demo/slice.html）
+    isSlice: false,               //是否启用分片上传，若为true，则isQueryState和isMd5默认为true
+    chunkSize: 2 * 1024 * 1024,   //默认分片大小为2MB
+	//查询路径为： url?action=query&hash=file hash
+    isQueryState:false,           //是否查询文件状态（for 秒传或续传）
+    isMd5: false,                 //是否计算上传文件md5值
+
 	container:element, //一般无需指定
 	getPos:function,   //一般无需指定
 
@@ -120,6 +127,8 @@ new Q.Uploader({
 		select,        //点击上传按钮准备选择上传文件之前触发,返回false可禁止选择文件
 		add,           //添加任务之前触发,返回false将跳过该任务
 		upload,        //上传任务之前触发,返回false将跳过该任务
+		hashProgress,  //文件hash进度（仅isMd5为true时有效）
+		hash,          //查询状态之前触发（for 秒传或续传）
 		send,          //发送数据之前触发,返回false将跳过该任务
     
 		cancel,        //取消上传任务后触发
@@ -139,15 +148,23 @@ new Q.Uploader({
 });
 ```
 
-说明：回调事件(add、upload、send)支持异步调用，只需在后面加上Async即可，比如在上传之前需要访问服务器验证数据，通过的就上传，否则跳过
+说明：回调事件(add、upload、hash、send)支持异步调用，只需在后面加上Async即可，比如在上传之前需要访问服务器验证数据，通过的就上传，否则跳过
 ```
 on: {
-	uploadAsync: function (callback) {
+	uploadAsync: function (task, callback) {
         $.postJSON(url, function (json) {
             //若 json.ok 返回false，该任务不会上传
             callback(json.ok);
         });
-    }
+    },
+	//计算文件hash
+	hashAsync: function(task, callback){
+		Q.md5File(task.file, function(md5){
+			//task.hash:秒传或断点续传唯一标识
+			task.hash = md5;
+			callback();
+		});
+	},
 }
 ```
 
@@ -221,8 +238,11 @@ Uploader.extend({
 
 			avgSpeed,   //平均上传速度（仅上传完毕）
 
-			timeStart,  //开始上传的时间
-			timeEnd,    //结束上传的时间（仅上传完毕）
+			startTime,  //开始上传的时间
+			endTime,    //结束上传的时间（仅上传完毕）
+
+			timeHash,   //文件hash所用时间（毫秒，仅当isMd5为true）
+			time,       //上传所用时间（毫秒）
 
 			deleted,     //若为true，表示已删除的文件
 

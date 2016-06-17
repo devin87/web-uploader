@@ -2,6 +2,7 @@
 
 using System;
 using System.Web;
+using System.IO;
 
 public class upload : IHttpHandler
 {
@@ -9,20 +10,58 @@ public class upload : IHttpHandler
     {
         HttpRequest request = context.Request;
 
-        int c = request.Files.Count;
+        string action = request["action"];
+        string hash = request["hash"];
 
-        //接收上传的数据并保存到服务器
-        for (int i = 0; i < c; i++)
+        int fileCount = request.Files.Count;
+
+        if (string.IsNullOrEmpty(hash))
         {
-            HttpPostedFile file = request.Files[i];
+            //普通上传
+            if (fileCount > 0)
+            {
+                HttpPostedFile file = request.Files[0];
 
-            string fileName = request["fileName"];
-            if (string.IsNullOrEmpty(fileName)) fileName = System.IO.Path.GetFileName(file.FileName);
+                string fileName = request["fileName"];
+                if (string.IsNullOrEmpty(fileName)) fileName = System.IO.Path.GetFileName(file.FileName);
 
-            string path = context.Server.MapPath("~/upload/" + fileName);
-            file.SaveAs(path);
+                string path = context.Server.MapPath("~/upload/" + fileName);
+                file.SaveAs(path);
+            }
         }
+        else
+        {
+            //秒传或断点续传
+            string path = context.Server.MapPath("~/upload/" + hash);
+            string path_ok = path + ".ok";
 
+            //状态查询
+            if (action == "query")
+            {
+                if (File.Exists(path_ok)) Finish("ok");
+                else if (File.Exists(path)) Finish(new FileInfo(path).Length.ToString());
+                else Finish("0");
+            }
+            else
+            {
+                if (fileCount > 0)
+                {
+                    HttpPostedFile file = request.Files[0];
+                    using (FileStream fs = File.Open(path, FileMode.Append))
+                    {
+                        byte[] buffer = new byte[file.ContentLength];
+                        file.InputStream.Read(buffer, 0, file.ContentLength);
+
+                        fs.Write(buffer, 0, buffer.Length);
+                    }
+                }
+
+                bool isOk = request["ok"] == "1";
+                if (!isOk) Finish("1");
+
+                if (File.Exists(path)) File.Move(path, path_ok);
+            }
+        }
 
         string type = request["type"];
         string user = request["user"];
