@@ -4,7 +4,7 @@
 * Q.Uploader.js 文件上传管理器 1.0
 * https://github.com/devin87/web-uploader
 * author:devin87@qq.com  
-* update:2016/06/17 13:30
+* update:2016/06/30 16:14
 */
 (function (window, undefined) {
     "use strict";
@@ -162,6 +162,7 @@
             chunkSize: 2 * 1024 * 1024,   //默认分片大小为2MB
             isQueryState:false,           //是否查询文件状态（for 秒传或续传）
             isMd5: false,                 //是否计算上传文件md5值
+            isUploadAfterHash:true,       //是否在Hash计算完毕后再上传
 
             container:element, //一般无需指定
             getPos:function,   //一般无需指定
@@ -230,6 +231,7 @@
         self.isSlice = !!ops.isSlice;                                 //是否启用分片上传
         self.isQueryState = !!def(ops.isQueryState, self.isSlice);    //是否查询文件状态（for 秒传或续传）
         self.isMd5 = !!def(ops.isMd5, self.isSlice);                  //是否计算上传文件md5值
+        self.isUploadAfterHash = ops.isUploadAfterHash !== false;     //是否在Hash计算完毕后再上传
 
         //ie9及以下不支持click触发(即使能弹出文件选择框,也无法获取文件数据,报拒绝访问错误)
         //若上传按钮位置不确定(比如在滚动区域内),则无法触发文件选择
@@ -482,7 +484,8 @@
         },
 
         //取消上传任务
-        cancel: function (taskId) {
+        //onlyCancel: 若为true,则仅取消上传而不触发任务完成事件
+        cancel: function (taskId, onlyCancel) {
             var self = this,
                 task = self.get(taskId);
 
@@ -507,7 +510,7 @@
                 self.iframe.contentWindow.location = "about:blank";
             }
 
-            return self.complete(task, UPLOAD_STATE_CANCEL);
+            return onlyCancel ? self : self.complete(task, UPLOAD_STATE_CANCEL);
         },
 
         //移除任务
@@ -571,70 +574,92 @@
             return self;
         },
 
-        //处理html5上传
-        _upload_html5_ready: function (task) {
-            var self = this;
+        //根据 task.hash 查询任务状态（for 秒传或续传）
+        queryState: function (task, callback) {
+            var self = this,
+                url = self.url,
+                xhr = new XMLHttpRequest();
 
-            //查询上传文件的状态（for 秒传或续传）
-            var query_state = function (callback) {
-                var url = self.url,
-                    xhr = new XMLHttpRequest();
+            url += (url.indexOf("?") == -1 ? "?" : "&") + "action=query&hash=" + (task.hash || task.name);
 
-                url += (url.indexOf("?") == -1 ? "?" : "&") + "action=query&hash=" + task.hash;
+            xhr.open("GET", url);
+            xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest");
 
-                xhr.open("GET", url);
-                xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest");
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState != 4) return;
 
-                xhr.onreadystatechange = function () {
-                    if (xhr.readyState != 4) return;
+                var result;
 
-                    if (xhr.status >= 200 && xhr.status < 400) {
-                        var result = xhr.responseText;
-                        if (result === "ok") return self.complete(task, UPLOAD_STATE_COMPLETE);
-
+                if (xhr.status >= 200 && xhr.status < 400) {
+                    var result = xhr.responseText;
+                    if (result === "ok") {
+                        self.cancel(task.id, true).complete(task, UPLOAD_STATE_COMPLETE);
+                    } else {
                         var start = !result || isNaN(result) ? 0 : +result;
                         if (start != Math.floor(start)) start = 0;
 
                         task.sliceStart = start;
                     }
+                }
 
-                    callback();
-                };
-
-                xhr.onerror = function () {
-                    callback();
-                };
-
-                xhr.send(null);
+                fire(callback, self, xhr, result);
             };
+
+            xhr.onerror = function () {
+                fire(callback, self, xhr);
+            };
+
+            xhr.send(null);
+
+            return self;
+        },
+
+        //处理html5上传（包括秒传和断点续传）
+        _upload_html5_ready: function (task) {
+            var self = this;
 
             //上传处理
             var goto_upload = function () {
+                if (task.state == UPLOAD_STATE_COMPLETE) return;
+
                 if (self.isSlice) self._upload_slice(task);
                 else self._upload_html5(task);
             };
 
-            var goto_query_state = function () {
+            var after_hash = function (callback) {
+                //自定义hash事件
                 self.fire("hash", task, function () {
-                    if (task.hash && self.isQueryState) query_state(goto_upload);
-                    else goto_upload();
+                    if (task.hash && self.isQueryState && task.state != UPLOAD_STATE_COMPLETE) self.queryState(task, callback);
+                    else callback();
                 });
             };
 
-            //计算上传文件md5值
-            if (self.isMd5 && md5File) {
-                var hashProgress = self.fns.hashProgress;
+            //计算文件hash
+            var compute_hash = function (callback) {
+                //计算上传文件md5值
+                if (self.isMd5 && md5File) {
+                    var hashProgress = self.fns.hashProgress;
 
-                md5File(task.file, function (md5, time) {
-                    task.hash = md5;
-                    task.timeHash = time;
-                    goto_query_state();
-                }, function (pvg) {
-                    fire(hashProgress, self, task, pvg);
-                });
+                    md5File(task.file, function (md5, time) {
+                        task.hash = md5;
+                        task.timeHash = time;
+                        after_hash(callback);
+                    }, function (pvg) {
+                        fire(hashProgress, self, task, pvg);
+                    });
+                } else {
+                    after_hash(callback);
+                }
+            };
+
+            if (self.isUploadAfterHash) {
+                compute_hash(goto_upload);
             } else {
-                goto_query_state();
+                goto_upload();
+                compute_hash();
             }
+
+            return self;
         },
 
         //处理上传参数

@@ -41,13 +41,16 @@
             target: document.getElementById("upload-target"),
             view: document.getElementById("upload-view"),
 
-            isSlice: true,
-            //chunkSize: 2 * 1024 * 1024,
-            //isQueryState: true,
+            isSlice: true,                  //是否启用分片上传，若为true，则isQueryState和isMd5默认为true
+            //chunkSize: 2 * 1024 * 1024,   //默认分片大小为2MB
+            //isQueryState: true,           //是否查询文件状态（for 秒传或续传）
 
             //基于md5的秒传和断点续传，不限于浏览器或机器，只要文件相同，均可
             //若自己实现hash计算，可配置isMd5为false，见下面 hashAsync 事件
             //isMd5: true,
+
+            //是否在Hash计算完毕后再上传
+            //isUploadAfterHash: true,
 
             //allows: ".txt,.jpg,.png,.gif,.zip,.rar,.7z",
 
@@ -96,7 +99,7 @@
                 },
 
                 //文件hash进度
-                hashProgress: function (task,pvg) {
+                hashProgress: function (task, pvg) {
                     document.title = "hash: " + (pvg * 100).toFixed(2) + "%";
                 },
 

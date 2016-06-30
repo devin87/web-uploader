@@ -2,7 +2,7 @@
 /*
 * Q.Uploader.slice.js 分片上传
 * author:devin87@qq.com  
-* update:2016/06/17 13:23
+* update:2016/06/30 16:08
 */
 (function (window, undefined) {
     "use strict";
@@ -29,7 +29,7 @@
                     url = task.url,
                     completed = end == size;
 
-                url += (url.indexOf("?") == -1 ? "?" : "&") + "action=upload&hash=" + task.hash + "&ok=" + (completed ? "1" : "0");
+                url += (url.indexOf("?") == -1 ? "?" : "&") + "action=upload&hash=" + (task.hash || task.name) + "&ok=" + (completed ? "1" : "0");
 
                 xhr.upload.addEventListener("progress", function (e) {
                     self.progress(task, size, start + e.loaded);

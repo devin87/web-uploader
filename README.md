@@ -116,6 +116,7 @@ new Q.Uploader({
 	//查询路径为： url?action=query&hash=file hash
     isQueryState:false,           //是否查询文件状态（for 秒传或续传）
     isMd5: false,                 //是否计算上传文件md5值
+    isUploadAfterHash:true,       //是否在Hash计算完毕后再上传
 
 	container:element, //一般无需指定
 	getPos:function,   //一般无需指定
@@ -192,7 +193,8 @@ uploader.start();
 uploader.upload(task);
 
 //取消上传任务
-uploader.cancel(taskId);
+//onlyCancel: 若为true,则仅取消上传而不触发任务完成事件
+uploader.cancel(taskId, onlyCancel);
 
 //移除上传任务，会先调用 uploader.cancel(taskId)
 uploader.remove(taskId);
