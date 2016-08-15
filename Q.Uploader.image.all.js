@@ -373,7 +373,7 @@
 * Q.Uploader.js 文件上传管理器 1.0
 * https://github.com/devin87/web-uploader
 * author:devin87@qq.com  
-* update:2016/06/30 16:14
+* update:2016/08/15 11:08
 */
 (function (window, undefined) {
     "use strict";
@@ -1072,7 +1072,8 @@
 
             xhr.open("POST", task.url);
 
-            xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest");
+            //移除自定义标头,以防止跨域上传被拦截
+            //xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest");
 
             self.fire("send", task, function (result) {
                 if (result === false) return self.complete(task, UPLOAD_STATE_SKIP);

@@ -18,7 +18,7 @@ a { text-decoration: none; }
 .sidebar li a { color: #0094ff; font-size: 14px; }
 .sidebar li.on, .sidebar li:hover { background-color: #efefef; }
 
-.content { float: left; min-width: 790px; _width: 790px; padding-top: 20px; }
+.content { float: left; min-width: 760px; _width: 760px; padding-top: 20px; }
 .x-button { padding: 10px 25px; border-radius: 3px; text-align: center; text-decoration: none; background-color: #0a82e4; color: #ffffff; font-size: 17px; margin: 0; white-space: nowrap; cursor: pointer; min-width: 60px; _width: 60px; }
 
 .content .x-button { display: inline-block; vertical-align: top; margin-right: 5px; }
