@@ -249,6 +249,7 @@ Uploader.extend({
 			deleted,     //若为true，表示已删除的文件
 
 			//文件成功上传
+			queryOK,     //仅秒传成功时为true
 			response,    //服务器返回的字符串
 			json         //response解析后的JSON对象(仅当 dataType 为json)
         };*/
