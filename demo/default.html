@@ -87,9 +87,9 @@
                     if (task.state != Uploader.COMPLETE) return log(task.name + ": " + Uploader.getStatusText(task.state) + "!");
 
                     var json = task.json;
-                    if (!json) return log(task.name + ": 服务器未返回正确的数据");
+                    if (!json) return log(task.name + ": 服务器未返回正确的数据！<br />");
 
-                    log("服务器返回:  " + (task.response || ""));
+                    log(task.name + ": 服务器返回 " + (task.response || ""));
                     log();
 
                     //this.list  为上传任务列表

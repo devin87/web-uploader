@@ -2,7 +2,7 @@
 /*
 * Q.Uploader.slice.js 分片上传
 * author:devin87@qq.com  
-* update:2016/06/30 16:08
+* update:2016/09/20 09:10
 */
 (function (window, undefined) {
     "use strict";
@@ -42,7 +42,7 @@
                 }, false);
 
                 xhr.addEventListener("error", function () {
-                    self.complete(task, UPLOAD_STATE_ERROR);
+                    self.complete(task, Uploader.ERROR);
                 }, false);
 
                 var fd = new FormData;

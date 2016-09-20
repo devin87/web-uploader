@@ -115,19 +115,21 @@
 
                 //上传完成后触发
                 complete: function (task) {
-                    if (task.state != Uploader.COMPLETE) return log(task.name + ": " + Uploader.getStatusText(task.state) + "!");
+                    if (task.state != Uploader.COMPLETE) return log(task.name + ": " + Uploader.getStatusText(task.state) + "！");
+
+                    if (task.queryOK) return log(task.name + ": 秒传成功！<br />");
 
                     var json = task.json;
-                    if (!json) return log(task.name + ": 服务器未返回正确的数据");
+                    if (!json) return log(task.name + ": 服务器未返回正确的数据！<br />");
 
-                    log("服务器返回:  " + (task.response || ""));
+                    log(task.name + ": 服务器返回 " + (task.response || ""));
                     log();
 
                     //this.list  为上传任务列表
                     //this.index 为当前上传任务索引
                     if (this.index >= this.list.length - 1) {
                         //所有任务上传完成
-                        log("所有任务上传完成：" + new Date());
+                        log("所有任务上传完成：" + new Date() + "<br />");
                     }
                 }
             }
