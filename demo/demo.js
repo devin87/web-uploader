@@ -17,14 +17,14 @@
     var list_page = [
         { title: "默认上传", href: "default.html" },
         { title: "简单上传", href: "simple.html" },
-        { title: "秒传+断点续传", href: "slice.html" },
+        { title: "秒传+断点续传（仅html5）", href: "slice.html" },
         { title: "指定上传类型", href: "simple-filetype.html" },
         { title: "图片预览+缩放+上传", href: "custom-image.html" },
         { title: "html4+滚动区域", href: "scroll-view.html" },
         { title: "文件单选", href: "simple-single.html" },
         { title: "手动上传", href: "simple-not-auto.html" },
         { title: "多个上传管理器", href: "tabs.html" },
-        { title: "拖拽上传", href: "drag-drop.html" },
+        { title: "拖拽上传（仅html5）", href: "drag-drop.html" },
         { title: "自定义UI", href: "custom.html" }
     ];
 

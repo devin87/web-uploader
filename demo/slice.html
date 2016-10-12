@@ -113,11 +113,31 @@
                 //    });
                 //},
 
+                //秒传查询事件
+                sliceQuery: function (task) {
+                    log(task.name + ": " + task.queryUrl);
+
+                    //console.log(task);
+
+                    //自定义查询路径
+                    //task.queryUrl = task.url + "&action=query&hash=" + task.hash;
+                },
+
+                //分片上传之前触发（for 秒传或续传）
+                sliceUploadAsync: function (task, callback) {
+                    log(task.name + ": 上传分片 " + task.sliceIndex + " / " + task.sliceCount);
+
+                    //返回false将跳过该分片
+                    //callback(false);
+
+                    callback();
+                },
+
                 //上传完成后触发
                 complete: function (task) {
                     if (task.state != Uploader.COMPLETE) return log(task.name + ": " + Uploader.getStatusText(task.state) + "！");
 
-                    if (task.queryOK) return log(task.name + ": 秒传成功！<br />");
+                    if (task.queryOK) log(task.name + ": 秒传成功！");
 
                     var json = task.json;
                     if (!json) return log(task.name + ": 服务器未返回正确的数据！<br />");

@@ -130,6 +130,8 @@ new Q.Uploader({
 		upload,        //上传任务之前触发,返回false将跳过该任务
 		hashProgress,  //文件hash进度（仅isMd5为true时有效）
 		hash,          //查询状态之前触发（for 秒传或续传）
+		sliceQuery,    //秒传查询之前触发
+		sliceUpload,   //分片上传之前触发，返回false将跳过该分片
 		send,          //发送数据之前触发,返回false将跳过该任务
     
 		cancel,        //取消上传任务后触发
@@ -149,7 +151,7 @@ new Q.Uploader({
 });
 ```
 
-说明：回调事件(add、upload、hash、send)支持异步调用，只需在后面加上Async即可，比如在上传之前需要访问服务器验证数据，通过的就上传，否则跳过
+说明：回调事件(add、upload、hash、sliceUpload、send)支持异步调用，只需在后面加上Async即可，比如在上传之前需要访问服务器验证数据，通过的就上传，否则跳过
 ```
 on: {
 	uploadAsync: function (task, callback) {
@@ -166,6 +168,12 @@ on: {
 			callback();
 		});
 	},
+	//分片上传之前触发
+    sliceUploadAsync: function (task, callback) {
+        log(task.name + ": 上传分片 " + task.sliceIndex + " / " + task.sliceCount);
+
+        callback();
+    }
 }
 ```
 
@@ -230,6 +238,12 @@ Uploader.extend({
 
 			disabled,   //若为true，表示禁止上传的文件
 			skip,       //若为true，表示要跳过的任务
+
+			//分片上传
+			sliceCount, //分片总数
+			sliceIndex, //当前分片数
+			sliceStart, //当前分片上传的起始点
+			sliceEnd,   //当前分片上传的结束点
 
 			//上传后会有如下属性（由于浏览器支持问题，以下部分属性可能不存在）
 			xhr,        //XMLHttpRequest对象（仅 html5）

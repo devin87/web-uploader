@@ -2,14 +2,12 @@
 /*
 * Q.Uploader.slice.js 分片上传
 * author:devin87@qq.com  
-* update:2016/09/20 09:10
+* update:2016/10/12 13:59
 */
 (function (window, undefined) {
     "use strict";
 
-    var Blob = window.Blob || window.WebkitBlob || window.MozBlob,
-        BlobBuilder = window.WebKitBlobBuilder || window.MozBlobBuilder,
-        blobSlice = File.prototype.slice || File.prototype.mozSlice || File.prototype.webkitSlice,
+    var blobSlice = File.prototype.slice || File.prototype.mozSlice || File.prototype.webkitSlice,
 
         Uploader = Q.Uploader;
 
@@ -75,6 +73,9 @@
                 }
             };
 
+            //分片总数
+            task.sliceCount = Math.ceil(size / chunkSize);
+
             //递归上传直至上传完毕
             var start_upload = function () {
                 if (start >= size) {
@@ -84,12 +85,23 @@
                 end = start + chunkSize;
                 if (end > size) end = size;
 
-                var chunk = blobSlice.call(file, start, end);
+                task.sliceStart = start;
+                task.sliceEnd = end;
+                task.sliceIndex = Math.ceil(end / chunkSize);
 
-                upload(chunk, function () {
-                    start = end;
-                    start_upload();
+                //分片上传事件，分片上传之前触发，返回false将跳过该分片
+                self.fire("sliceUpload", task, function (result) {
+                    if (result === false) return next_upload();
+
+                    var chunk = blobSlice.call(file, start, end);
+                    upload(chunk, next_upload);
                 });
+            };
+
+            //上传下一个分片
+            var next_upload = function () {
+                start = end;
+                start_upload();
             };
 
             start_upload();

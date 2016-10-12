@@ -4,7 +4,7 @@
 * Q.Uploader.js 文件上传管理器 1.0
 * https://github.com/devin87/web-uploader
 * author:devin87@qq.com  
-* update:2016/09/20 09:29
+* update:2016/10/12 11:54
 */
 (function (window, undefined) {
     "use strict";
@@ -580,30 +580,42 @@
                 url = self.url,
                 xhr = new XMLHttpRequest();
 
-            url += (url.indexOf("?") == -1 ? "?" : "&") + "action=query&hash=" + (task.hash || task.name);
+            task.queryUrl = url + (url.indexOf("?") == -1 ? "?" : "&") + "action=query&hash=" + (task.hash || task.name);
 
-            xhr.open("GET", url);
-            xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest");
+            //秒传查询事件
+            self.fire("sliceQuery", task);
+
+            xhr.open("GET", task.queryUrl);
+            //xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest");
 
             xhr.onreadystatechange = function () {
                 if (xhr.readyState != 4) return;
 
-                var result;
+                var responseText, json;
 
                 if (xhr.status >= 200 && xhr.status < 400) {
-                    var result = xhr.responseText;
-                    if (result === "ok") {
+                    responseText = xhr.responseText;
+
+                    if (responseText === "ok") json = { ret: 1 };
+                    else if (responseText) json = parseJSON(responseText);
+
+                    if (!json || typeof json == "number") json = { ret: 0, start: json };
+
+                    task.response = responseText;
+                    task.json = json;
+
+                    if (json.ret == 1) {
                         task.queryOK = true;
                         self.cancel(task.id, true).complete(task, UPLOAD_STATE_COMPLETE);
                     } else {
-                        var start = !result || isNaN(result) ? 0 : +result;
+                        var start = +json.start || 0;
                         if (start != Math.floor(start)) start = 0;
 
                         task.sliceStart = start;
                     }
                 }
 
-                fire(callback, self, xhr, result);
+                fire(callback, self, xhr);
             };
 
             xhr.onerror = function () {

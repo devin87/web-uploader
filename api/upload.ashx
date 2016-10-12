@@ -38,7 +38,7 @@ public class upload : IHttpHandler
             //状态查询
             if (action == "query")
             {
-                if (File.Exists(path_ok)) Finish("ok");
+                if (File.Exists(path_ok)) Finish(GetResponseJSON(request, ",\"ret\":1"));
                 else if (File.Exists(path)) Finish(new FileInfo(path).Length.ToString());
                 else Finish("0");
             }
@@ -63,6 +63,16 @@ public class upload : IHttpHandler
             }
         }
 
+        Finish(GetResponseJSON(request, ""));
+    }
+
+    /// <summary>
+    /// 获取返回的json字符串
+    /// </summary>
+    /// <param name="request"></param>
+    /// <returns></returns>
+    private string GetResponseJSON(HttpRequest request, string result)
+    {
         string type = request["type"];
         string user = request["user"];
         string name = request["name"];
@@ -73,7 +83,7 @@ public class upload : IHttpHandler
         if (user != null) json += ",\"user\":\"" + user + "\"";
         if (name != null) json += ",\"name\":\"" + name + "\"";
 
-        Finish("{" + json + "}");
+        return "{" + json + result + "}";
     }
 
     /// <summary>
