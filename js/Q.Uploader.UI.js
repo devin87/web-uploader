@@ -2,7 +2,7 @@
 /*
 * Q.Uploader.UI.js 上传管理器界面
 * author:devin87@qq.com  
-* update:2015/10/16 11:30
+* update:2017/02/09 09:06
 */
 (function (window, undefined) {
     "use strict";
@@ -19,7 +19,8 @@
         E = Q.event,
         addEvent = E.add,
 
-        Uploader = Q.Uploader;
+        Uploader = Q.Uploader,
+        Lang = Uploader.Lang;
 
     //追加css样式名
     function addClass(ele, className) {
@@ -50,8 +51,8 @@
 
             var ops_button = ops.button || {},
 
-                text_button_cancel = def(ops_button.cancel, "取消"),
-                text_button_remove = def(ops_button.remove, "删除"),
+                text_button_cancel = def(Lang.cancel || ops_button.cancel, "取消"),
+                text_button_remove = def(Lang.remove || ops_button.remove, "删除"),
 
                 name = task.name;
 

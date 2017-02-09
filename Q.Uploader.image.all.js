@@ -373,7 +373,7 @@
 * Q.Uploader.js 文件上传管理器 1.0
 * https://github.com/devin87/web-uploader
 * author:devin87@qq.com  
-* update:2017/02/04 11:17
+* update:2017/02/09 09:03
 */
 (function (window, undefined) {
     "use strict";
@@ -429,13 +429,13 @@
         var LANG = Uploader.Lang;
 
         switch (state) {
-            case UPLOAD_STATE_READY: return LANG.ready;
-            case UPLOAD_STATE_PROCESSING: return LANG.processing;
-            case UPLOAD_STATE_COMPLETE: return LANG.complete;
+            case UPLOAD_STATE_READY: return LANG.status_ready;
+            case UPLOAD_STATE_PROCESSING: return LANG.status_processing;
+            case UPLOAD_STATE_COMPLETE: return LANG.status_complete;
 
-            case UPLOAD_STATE_SKIP: return LANG.skip;
-            case UPLOAD_STATE_CANCEL: return LANG.cancel;
-            case UPLOAD_STATE_ERROR: return LANG.error;
+            case UPLOAD_STATE_SKIP: return LANG.status_skip;
+            case UPLOAD_STATE_CANCEL: return LANG.status_cancel;
+            case UPLOAD_STATE_ERROR: return LANG.status_error;
         }
 
         return state;
@@ -1225,12 +1225,12 @@
 
         //默认语言
         Lang: {
-            ready: "准备中",
-            processing: "上传中",
-            complete: "已完成",
-            skip: "已跳过",
-            cancel: "已取消",
-            error: "已失败"
+            status_ready: "准备中",
+            status_processing: "上传中",
+            status_complete: "已完成",
+            status_skip: "已跳过",
+            status_cancel: "已取消",
+            status_error: "已失败"
         },
 
         getStatusText: get_upload_status_text
