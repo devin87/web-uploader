@@ -2,7 +2,7 @@
 /*
 * Q.Uploader.slice.js 分片上传
 * author:devin87@qq.com  
-* update:2016/10/12 13:59
+* update:2017/02/10 11:18
 */
 (function (window, undefined) {
     "use strict";
@@ -26,6 +26,8 @@
                 var xhr = new XMLHttpRequest(),
                     url = task.url,
                     completed = end == size;
+
+                task.xhr = xhr;
 
                 url += (url.indexOf("?") == -1 ? "?" : "&") + "action=upload&hash=" + (task.hash || task.name) + "&ok=" + (completed ? "1" : "0");
 
