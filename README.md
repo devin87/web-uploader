@@ -95,7 +95,7 @@ new Q.Uploader({
 	html5: true,       //是否启用html5上传,若浏览器不支持,则自动禁用
 	multiple: true,    //选择文件时是否允许多选,若浏览器不支持,则自动禁用(仅html5模式有效)
 
-    clickTrigger:true, //是否启用click触发文件选择 eg: input.click() => ie9及以下不支持
+	clickTrigger:true, //是否启用click触发文件选择 eg: input.click() => ie9及以下不支持
 
 	auto: true,        //添加任务后是否立即上传
 
@@ -115,7 +115,7 @@ new Q.Uploader({
 	chunkSize: 2 * 1024 * 1024,   //默认分片大小为2MB
 	//查询路径为： url?action=query&hash=file hash
 	isQueryState:false,           //是否查询文件状态（for 秒传或续传）
-    isMd5: false,                 //是否计算上传文件md5值
+	isMd5: false,                 //是否计算上传文件md5值
 	isUploadAfterHash:true,       //是否在Hash计算完毕后再上传
 
 	container:element, //一般无需指定
