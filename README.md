@@ -111,12 +111,12 @@ new Q.Uploader({
 	disallows: "",     //禁止上传的文件类型(扩展名)
 
 	//秒传+分片上传+断点续传,具体见示例（demo/slice.html）
-    isSlice: false,               //是否启用分片上传，若为true，则isQueryState和isMd5默认为true
-    chunkSize: 2 * 1024 * 1024,   //默认分片大小为2MB
+	isSlice: false,               //是否启用分片上传，若为true，则isQueryState和isMd5默认为true
+	chunkSize: 2 * 1024 * 1024,   //默认分片大小为2MB
 	//查询路径为： url?action=query&hash=file hash
-    isQueryState:false,           //是否查询文件状态（for 秒传或续传）
+	isQueryState:false,           //是否查询文件状态（for 秒传或续传）
     isMd5: false,                 //是否计算上传文件md5值
-    isUploadAfterHash:true,       //是否在Hash计算完毕后再上传
+	isUploadAfterHash:true,       //是否在Hash计算完毕后再上传
 
 	container:element, //一般无需指定
 	getPos:function,   //一般无需指定
