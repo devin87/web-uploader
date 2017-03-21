@@ -9,13 +9,13 @@ js (html5 + html4) 文件上传管理器，支持上传进度显示，支持秒�
 
 ###特点：
 <ul>
-	<li>轻量级，不依赖任何JS库，核心代码（Q.Uploader.js）仅约700行，min版本加起来不到12KB</li>
-	<li>纯JS代码，无需Flash，无需更改后台代码即可实现带进度条（IE10+、其它标准浏览器）的上传，其它（eg：IE6+）自动降级为传统方式上传</li>
-	<li>单独的图片上传UI，支持图片预览（IE6+、其它浏览器）和缩放（IE10+、其它浏览器）</li>
-	<li>支持秒传+分片上传+断点续传（IE10+、其它标准浏览器），适应多种上传环境（默认基于md5，不限于浏览器和使用场景，只要文件相同即可；也可自行实现hash计算）</li>
-	<li>上传文件的同时可以指定上传参数，支持上传类型过滤</li>
-	<li>完善的事件回调，可针对上传的每个过程进行单独处理</li>
-	<li>上传核心与UI界面分离，方便的UI接口，可以很方便的定制上传界面包括上传按钮</li>
+    <li>轻量级，不依赖任何JS库，核心代码（Q.Uploader.js）仅约700行，min版本加起来不到12KB</li>
+    <li>纯JS代码，无需Flash，无需更改后台代码即可实现带进度条（IE10+、其它标准浏览器）的上传，其它（eg：IE6+）自动降级为传统方式上传</li>
+    <li>单独的图片上传UI，支持图片预览（IE6+、其它浏览器）和缩放（IE10+、其它浏览器）</li>
+    <li>支持秒传+分片上传+断点续传（IE10+、其它标准浏览器），适应多种上传环境（默认基于md5，不限于浏览器和使用场景，只要文件相同即可；也可自行实现hash计算）</li>
+    <li>上传文件的同时可以指定上传参数，支持上传类型过滤</li>
+    <li>完善的事件回调，可针对上传的每个过程进行单独处理</li>
+    <li>上传核心与UI界面分离，方便的UI接口，可以很方便的定制上传界面包括上传按钮</li>
 </ul>
 
 ###演示环境（其它语言可自行实现服务端接收和网站部署）
@@ -44,10 +44,10 @@ Node.js 演示见[web-uploader-node](https://github.com/devin87/web-uploader-nod
 
 3. 调用
 new Q.Uploader({
-	url:"api/upload.ashx",
+    url:"api/upload.ashx",
 
-	target: element,    //上传按钮
-	view: element       //上传任务视图
+    target: element,    //上传按钮
+    view: element       //上传任务视图
 });
 ```
 
@@ -66,10 +66,10 @@ new Q.Uploader({
 
 3. 调用
 new Q.Uploader({
-	url:"api/upload.ashx",
+    url:"api/upload.ashx",
 
-	target: element,    //上传按钮
-	view: element,      //上传任务视图
+    target: element,    //上传按钮
+    view: element,      //上传任务视图
 
     allows: ".jpg,.png,.gif,.bmp",
 
@@ -86,89 +86,89 @@ new Q.Uploader({
 ###完整调用示例
 ```
 new Q.Uploader({
-	//--------------- 必填 ---------------
-	url: "",            //上传路径
-	target: element,    //上传按钮
-	view: element,      //上传任务视图(若自己实现UI接口，则无需指定此参数)
+    //--------------- 必填 ---------------
+    url: "",            //上传路径
+    target: element,    //上传按钮
+    view: element,      //上传任务视图(若自己实现UI接口，则无需指定此参数)
 
-	//--------------- 可选 ---------------
-	html5: true,       //是否启用html5上传,若浏览器不支持,则自动禁用
-	multiple: true,    //选择文件时是否允许多选,若浏览器不支持,则自动禁用(仅html5模式有效)
+    //--------------- 可选 ---------------
+    html5: true,       //是否启用html5上传,若浏览器不支持,则自动禁用
+    multiple: true,    //选择文件时是否允许多选,若浏览器不支持,则自动禁用(仅html5模式有效)
 
-	clickTrigger:true, //是否启用click触发文件选择 eg: input.click() => ie9及以下不支持
+    clickTrigger:true, //是否启用click触发文件选择 eg: input.click() => ie9及以下不支持
 
-	auto: true,        //添加任务后是否立即上传
+    auto: true,        //添加任务后是否立即上传
 
-	data: {},          //上传文件的同时可以指定其它参数,该参数将以POST的方式提交到服务器
+    data: {},          //上传文件的同时可以指定其它参数,该参数将以POST的方式提交到服务器
 
-	dataType: "json",  //服务器返回值类型
+    dataType: "json",  //服务器返回值类型
 
-	workerThread: 1,   //同时允许上传的任务数(仅html5模式有效)
+    workerThread: 1,   //同时允许上传的任务数(仅html5模式有效)
 
-	upName: "upfile",  //上传参数名称,若后台需要根据name来获取上传数据,可配置此项
+    upName: "upfile",  //上传参数名称,若后台需要根据name来获取上传数据,可配置此项
 
-	allows: "",        //允许上传的文件类型(扩展名),多个之间用逗号隔开
-	disallows: "",     //禁止上传的文件类型(扩展名)
+    allows: "",        //允许上传的文件类型(扩展名),多个之间用逗号隔开
+    disallows: "",     //禁止上传的文件类型(扩展名)
 
-	//秒传+分片上传+断点续传,具体见示例（demo/slice.html）
-	isSlice: false,               //是否启用分片上传，若为true，则isQueryState和isMd5默认为true
-	chunkSize: 2 * 1024 * 1024,   //默认分片大小为2MB
-	//查询路径为： url?action=query&hash=file hash
-	isQueryState:false,           //是否查询文件状态（for 秒传或续传）
-	isMd5: false,                 //是否计算上传文件md5值
-	isUploadAfterHash:true,       //是否在Hash计算完毕后再上传
+    //秒传+分片上传+断点续传,具体见示例（demo/slice.html）
+    isSlice: false,               //是否启用分片上传，若为true，则isQueryState和isMd5默认为true
+    chunkSize: 2 * 1024 * 1024,   //默认分片大小为2MB
+    //查询路径为： url?action=query&hash=file hash
+    isQueryState:false,           //是否查询文件状态（for 秒传或续传）
+    isMd5: false,                 //是否计算上传文件md5值
+    isUploadAfterHash:true,       //是否在Hash计算完毕后再上传
 
-	container:element, //一般无需指定
-	getPos:function,   //一般无需指定
+    container:element, //一般无需指定
+    getPos:function,   //一般无需指定
 
-	//上传回调事件(function)
-	on: {
-		init,          //上传管理器初始化完毕后触发
+    //上传回调事件(function)
+    on: {
+        init,          //上传管理器初始化完毕后触发
     
-		select,        //点击上传按钮准备选择上传文件之前触发,返回false可禁止选择文件
-		add,           //添加任务之前触发,返回false将跳过该任务
-		upload,        //上传任务之前触发,返回false将跳过该任务
-		hashProgress,  //文件hash进度（仅isMd5为true时有效）
-		hash,          //查询状态之前触发（for 秒传或续传）
-		sliceQuery,    //秒传查询之前触发
-		sliceUpload,   //分片上传之前触发，返回false将跳过该分片
-		send,          //发送数据之前触发,返回false将跳过该任务
+        select,        //点击上传按钮准备选择上传文件之前触发,返回false可禁止选择文件
+        add,           //添加任务之前触发,返回false将跳过该任务
+        upload,        //上传任务之前触发,返回false将跳过该任务
+        hashProgress,  //文件hash进度（仅isMd5为true时有效）
+        hash,          //查询状态之前触发（for 秒传或续传）
+        sliceQuery,    //秒传查询之前触发
+        sliceUpload,   //分片上传之前触发，返回false将跳过该分片
+        send,          //发送数据之前触发,返回false将跳过该任务
     
-		cancel,        //取消上传任务后触发
-		remove,        //移除上传任务后触发
+        cancel,        //取消上传任务后触发
+        remove,        //移除上传任务后触发
     
-		progress,      //上传进度发生变化后触发(仅html5模式有效)
-		complete       //上传完成后触发
-	},
+        progress,      //上传进度发生变化后触发(仅html5模式有效)
+        complete       //上传完成后触发
+    },
 
-	//UI接口(function),若指定了以下方法,将忽略默认实现
-	UI:{
-		init,       //执行初始化操作
-		draw,       //添加任务后绘制任务界面
-		update,     //更新任务界面  
-		over        //任务上传完成
-	}
+    //UI接口(function),若指定了以下方法,将忽略默认实现
+    UI:{
+        init,       //执行初始化操作
+        draw,       //添加任务后绘制任务界面
+        update,     //更新任务界面  
+        over        //任务上传完成
+    }
 });
 ```
 
 说明：回调事件(add、upload、hash、sliceUpload、send)支持异步调用，只需在后面加上Async即可，比如在上传之前需要访问服务器验证数据，通过的就上传，否则跳过
 ```
 on: {
-	uploadAsync: function (task, callback) {
+    uploadAsync: function (task, callback) {
         $.postJSON(url, function (json) {
             //若 json.ok 返回false，该任务不会上传
             callback(json.ok);
         });
     },
-	//计算文件hash
-	hashAsync: function(task, callback){
-		Q.md5File(task.file, function(md5){
-			//task.hash:秒传或断点续传唯一标识
-			task.hash = md5;
-			callback();
-		});
-	},
-	//分片上传之前触发
+    //计算文件hash
+    hashAsync: function(task, callback){
+        Q.md5File(task.file, function(md5){
+            //task.hash:秒传或断点续传唯一标识
+            task.hash = md5;
+            callback();
+        });
+    },
+    //分片上传之前触发
     sliceUploadAsync: function (task, callback) {
         log(task.name + ": 上传分片 " + task.sliceIndex + " / " + task.sliceCount);
 
@@ -236,36 +236,36 @@ Uploader.extend({
 
             state,      //上传状态
 
-			disabled,   //若为true，表示禁止上传的文件
-			skip,       //若为true，表示要跳过的任务
+            disabled,   //若为true，表示禁止上传的文件
+            skip,       //若为true，表示要跳过的任务
 
-			//分片上传
-			sliceCount, //分片总数
-			sliceIndex, //当前分片数
-			sliceStart, //当前分片上传的起始点
-			sliceEnd,   //当前分片上传的结束点
+            //分片上传
+            sliceCount, //分片总数
+            sliceIndex, //当前分片数
+            sliceStart, //当前分片上传的起始点
+            sliceEnd,   //当前分片上传的结束点
 
-			//上传后会有如下属性（由于浏览器支持问题，以下部分属性可能不存在）
-			xhr,        //XMLHttpRequest对象（仅 html5）
+            //上传后会有如下属性（由于浏览器支持问题，以下部分属性可能不存在）
+            xhr,        //XMLHttpRequest对象（仅 html5）
 
-			total,      //总上传大小（单位：Byte）
-			loaded,     //已上传大小（单位：Byte）
-			speed,      //上传速度（单位：Byte/s）
+            total,      //总上传大小（单位：Byte）
+            loaded,     //已上传大小（单位：Byte）
+            speed,      //上传速度（单位：Byte/s）
 
-			avgSpeed,   //平均上传速度（仅上传完毕）
+            avgSpeed,   //平均上传速度（仅上传完毕）
 
-			startTime,  //开始上传的时间
-			endTime,    //结束上传的时间（仅上传完毕）
+            startTime,  //开始上传的时间
+            endTime,    //结束上传的时间（仅上传完毕）
 
-			timeHash,   //文件hash所用时间（毫秒，仅当isMd5为true）
-			time,       //上传所用时间（毫秒）
+            timeHash,   //文件hash所用时间（毫秒，仅当isMd5为true）
+            time,       //上传所用时间（毫秒）
 
-			deleted,     //若为true，表示已删除的文件
+            deleted,     //若为true，表示已删除的文件
 
-			//文件成功上传
-			queryOK,     //仅秒传成功时为true
-			response,    //服务器返回的字符串
-			json         //response解析后的JSON对象(仅当 dataType 为json)
+            //文件成功上传
+            queryOK,     //仅秒传成功时为true
+            response,    //服务器返回的字符串
+            json         //response解析后的JSON对象(仅当 dataType 为json)
         };*/
     },
 
