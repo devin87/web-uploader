@@ -7,7 +7,7 @@ js (html5 + html4) 文件上传管理器，支持上传进度显示，支持秒�
 
 [图片上传介绍](http://www.cnblogs.com/devin87/p/web-uploader-image.html)
 
-###特点：
+### 特点：
 <ul>
     <li>轻量级，不依赖任何JS库，核心代码（Q.Uploader.js）仅约700行，min版本加起来不到12KB</li>
     <li>纯JS代码，无需Flash，无需更改后台代码即可实现带进度条（IE10+、其它标准浏览器）的上传，其它（eg：IE6+）自动降级为传统方式上传</li>
@@ -18,7 +18,7 @@ js (html5 + html4) 文件上传管理器，支持上传进度显示，支持秒�
     <li>上传核心与UI界面分离，方便的UI接口，可以很方便的定制上传界面包括上传按钮</li>
 </ul>
 
-###演示环境（其它语言可自行实现服务端接收和网站部署）
+### 演示环境（其它语言可自行实现服务端接收和网站部署）
 演示前请在根目录下创建upload文件夹，以保存上传文件<br>
 执行程序：api/upload.ashx
 ```
@@ -28,7 +28,7 @@ iis
 
 Node.js 演示见[web-uploader-node](https://github.com/devin87/web-uploader-node)
 
-###简单调用示例
+### 简单调用示例
 例：一般文件上传，使用默认的UI
 ```
 1. 导入样式文件(若自己实现UI接口，则无需导入默认的样式文件)
@@ -83,7 +83,7 @@ new Q.Uploader({
 });
 ```
 
-###完整调用示例
+### 完整调用示例
 ```
 new Q.Uploader({
     //--------------- 必填 ---------------
@@ -178,7 +178,7 @@ on: {
 ```
 
 
-###手动操作(api)
+### 手动操作(api)
 ```
 var uploader = new Q.Uploader(ops);
 
@@ -214,7 +214,7 @@ uploader.progress(task, total, loaded);
 
 ```
 
-###自定义UI实现
+### 自定义UI实现
 可以在初始化时指定UI处理函数，亦可以通过扩展的方式实现
 ```
 Uploader.extend({
