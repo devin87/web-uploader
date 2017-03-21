@@ -1452,14 +1452,15 @@
                 if (!src || !support_scale) return;
 
                 scaleImage(src, get_image_mimetype(task.ext), scale_data, function (base64, mimetype) {
-                    if (!base64) return;
+                    if (base64) {
+                        var blob = dataURLtoBlob(base64, mimetype);
+                        task.blob = blob;
 
-                    var blob = dataURLtoBlob(base64, mimetype);
-                    task.blob = blob;
+                        self.fire("scale", { task: task, base64: base64, type: mimetype, blob: blob });
+                    }
+
                     task.skip = false;
                     self.list.push(task);
-
-                    self.fire("scale", { task: task, base64: base64, type: mimetype, blob: blob });
 
                     if (self.auto) self.start();
                 });

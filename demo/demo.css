@@ -12,13 +12,14 @@ a { text-decoration: none; }
 .header { height: 60px; line-height: 60px; font-size: 16px; text-align: center; border-bottom: 1px solid #ccc; }
 .main { overflow: hidden; }
 
-.sidebar { float: left; width: 220px; border-right: 1px solid #ccc; margin-right: 15px; }
+.sidebar { float: left; width: 220px; border-right: 1px solid #ccc; }
 .sidebar .title { font-size: 16px; padding: 8px 0 8px 15px; }
 .sidebar li { padding: 8px 0 8px 35px; border-top: 1px solid #ddd; }
 .sidebar li a { color: #0094ff; font-size: 14px; }
 .sidebar li.on, .sidebar li:hover { background-color: #efefef; }
 
-.content { float: left; min-width: 760px; _width: 760px; padding-top: 20px; }
+.content { float: right; width: 100%; margin-left: -240px; }
+.contentin { margin-left: 240px; min-width: 760px; _width: 760px; padding-top: 20px; margin-right: 20px; }
 .x-button { padding: 10px 25px; border-radius: 3px; text-align: center; text-decoration: none; background-color: #0a82e4; color: #ffffff; font-size: 17px; margin: 0; white-space: nowrap; cursor: pointer; min-width: 60px; _width: 60px; }
 
 .content .x-button { display: inline-block; vertical-align: top; margin-right: 5px; }

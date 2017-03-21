@@ -13,15 +13,17 @@
 <body>
     <div id="header" class="header">Header</div>
     <div id="main" class="main scroll-view">
-        <div id="sidebar" class="sidebar"></div>
         <div id="content" class="content">
-            <div class="h100"></div>
-            <div>
-                <a id="upload-target" class="x-button">选择文件并上传</a>
+            <div class="contentin">
+                <div class="h100"></div>
+                <div>
+                    <a id="upload-target" class="x-button">选择文件并上传</a>
+                </div>
+                <div id="upload-view"></div>
+                <div class="h1000"></div>
             </div>
-            <div id="upload-view"></div>
-            <div class="h1000"></div>
         </div>
+        <div id="sidebar" class="sidebar"></div>
     </div>
 
     <script type="text/javascript" src="demo.js"></script>
@@ -31,7 +33,7 @@
     <script type="text/javascript" src="../js/Q.Uploader.UI.js"></script>
 
     <script type="text/javascript">
-        new Q.Uploader({
+        var uploader = new Q.Uploader({
             url: UPLOAD_URL + "?type=file",
             target: document.getElementById("upload-target"),
             view: document.getElementById("upload-view"),
@@ -44,6 +46,7 @@
                 return offset;
             },
 
+            //clickTrigger: false,
             html5: false
         });
     </script>
