@@ -2,7 +2,7 @@
 /*
 * Q.Uploader.Image.js 图片上传管理器界面
 * author:devin87@qq.com  
-* update:2016/04/22 16:07
+* update:2017/08/14 15:28
 */
 (function (window, undefined) {
     "use strict";
@@ -170,17 +170,16 @@
     Uploader.previewImage = previewImage;
     Uploader.scaleImage = scaleImage;
 
-
-    //实现默认的UI接口
-    Uploader.extend({
+    //图片上传UI
+    Uploader.UI.Image = {
         //初始化
         init: function () {
             var ops = this.ops,
-                boxView = ops.boxView;
+                boxView = ops.view;
 
             if (!ops.allows) ops.allows = DEF_IMAGE_TYPES;
 
-            if (boxView) addClass(boxView, this.html5 ? "html5" : "html4");
+            if (boxView) addClass(boxView, "ui-image " + (this.html5 ? "html5" : "html4"));
         },
 
         //是否支持图片压缩
@@ -317,6 +316,9 @@
 
             addClass(task.box, "u-over");
         }
-    });
+    };
+
+    //实现默认的UI接口
+    Uploader.extend(Uploader.UI.Image);
 
 })(window);

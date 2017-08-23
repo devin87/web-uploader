@@ -1,0 +1,76 @@
+﻿<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>文件上传</title>
+    <link href="demo.css" rel="stylesheet" type="text/css" />
+    <link href="../css/uploader.all.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+    <div id="header" class="header">Header</div>
+    <div class="main">
+        <div class="content">
+            <div class="contentin">
+                <div>
+                    <a id="upload-target" class="x-button">选择文件并上传</a>
+                    <a id="upload-target-image" class="x-button">添加图片并上传</a>
+                </div>
+                <div id="upload-image-view" class="clearfix"></div>
+                <div id="upload-view" class="clearfix"></div>
+                <div id="log"></div>
+            </div>
+        </div>
+        <div id="sidebar" class="sidebar"></div>
+    </div>
+
+    <script type="text/javascript" src="demo.js"></script>
+
+    <script type="text/javascript" src="../js/Q.js"></script>
+    <script type="text/javascript" src="../js/Q.Uploader.js"></script>
+    <script type="text/javascript" src="../js/Q.Uploader.UI.Image.js"></script>
+    <script type="text/javascript" src="../js/Q.Uploader.UI.File.js"></script>
+
+    <script type="text/javascript">
+        function log(msg) {
+            document.getElementById("log").innerHTML += (msg != undefined ? msg : "") + "<br />";
+        }
+
+        var Uploader = Q.Uploader,
+            formatSize = Q.formatSize;
+
+        function create_uploader(ops) {
+            return new Uploader(Q.extend(ops || {}, {
+                url: UPLOAD_URL,
+                //auto: false,
+
+                on: {
+                    //添加之前触发
+                    add: function (task) {
+                        if (task.disabled) return alert("允许上传的文件格式为：" + this.ops.allows);
+                    }
+                }
+            }));
+        }
+
+        //图片上传
+        create_uploader({
+            target: document.getElementById("upload-target-image"),
+            view: document.getElementById("upload-image-view"),
+
+            allows: ".jpg,.png,.gif,.bmp",
+
+            UI:Uploader.UI.Image
+        });
+
+        //文件上传
+        create_uploader({
+            target: document.getElementById("upload-target"),
+            view: document.getElementById("upload-view"),
+
+            UI: Uploader.UI.File
+        });
+
+    </script>
+</body>
+</html>

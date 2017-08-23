@@ -61,7 +61,7 @@
 
                 xhr.open("POST", url);
 
-                xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest");
+                //xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest");
 
                 //上传完毕
                 if (completed) {

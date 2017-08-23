@@ -373,7 +373,7 @@
 * Q.Uploader.js 文件上传管理器 1.0
 * https://github.com/devin87/web-uploader
 * author:devin87@qq.com  
-* update:2017/02/09 09:03
+* update:2017/08/14 16:14
 */
 (function (window, undefined) {
     "use strict";
@@ -951,7 +951,7 @@
                 url = self.url,
                 xhr = new XMLHttpRequest();
 
-            task.queryUrl = url + (url.indexOf("?") == -1 ? "?" : "&") + "action=query&hash=" + (task.hash || task.name);
+            task.queryUrl = url + (url.indexOf("?") == -1 ? "?" : "&") + "action=query&hash=" + (task.hash || encodeURIComponent(task.name)) + "&fileName=" + encodeURIComponent(task.name);
 
             //秒传查询事件
             self.fire("sliceQuery", task);
@@ -1223,6 +1223,9 @@
         CANCEL: UPLOAD_STATE_CANCEL,
         ERROR: UPLOAD_STATE_ERROR,
 
+        //UI对象,用于多套UI共存
+        UI: {},
+
         //默认语言
         Lang: {
             status_ready: "准备中",
@@ -1243,7 +1246,7 @@
 ﻿/*
 * Q.Uploader.Image.js 图片上传管理器界面
 * author:devin87@qq.com  
-* update:2016/04/22 16:07
+* update:2017/08/14 15:28
 */
 (function (window, undefined) {
     "use strict";
@@ -1411,17 +1414,16 @@
     Uploader.previewImage = previewImage;
     Uploader.scaleImage = scaleImage;
 
-
-    //实现默认的UI接口
-    Uploader.extend({
+    //图片上传UI
+    Uploader.UI.Image = {
         //初始化
         init: function () {
             var ops = this.ops,
-                boxView = ops.boxView;
+                boxView = ops.view;
 
             if (!ops.allows) ops.allows = DEF_IMAGE_TYPES;
 
-            if (boxView) addClass(boxView, this.html5 ? "html5" : "html4");
+            if (boxView) addClass(boxView, "ui-image " + (this.html5 ? "html5" : "html4"));
         },
 
         //是否支持图片压缩
@@ -1558,6 +1560,9 @@
 
             addClass(task.box, "u-over");
         }
-    });
+    };
+
+    //实现默认的UI接口
+    Uploader.extend(Uploader.UI.Image);
 
 })(window);

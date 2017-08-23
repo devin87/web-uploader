@@ -4,7 +4,7 @@
 * Q.Uploader.js 文件上传管理器 1.0
 * https://github.com/devin87/web-uploader
 * author:devin87@qq.com  
-* update:2017/02/09 09:03
+* update:2017/08/14 16:14
 */
 (function (window, undefined) {
     "use strict";
@@ -582,7 +582,7 @@
                 url = self.url,
                 xhr = new XMLHttpRequest();
 
-            task.queryUrl = url + (url.indexOf("?") == -1 ? "?" : "&") + "action=query&hash=" + (task.hash || task.name);
+            task.queryUrl = url + (url.indexOf("?") == -1 ? "?" : "&") + "action=query&hash=" + (task.hash || encodeURIComponent(task.name)) + "&fileName=" + encodeURIComponent(task.name);
 
             //秒传查询事件
             self.fire("sliceQuery", task);
@@ -853,6 +853,9 @@
         SKIP: UPLOAD_STATE_SKIP,
         CANCEL: UPLOAD_STATE_CANCEL,
         ERROR: UPLOAD_STATE_ERROR,
+
+        //UI对象,用于多套UI共存
+        UI: {},
 
         //默认语言
         Lang: {

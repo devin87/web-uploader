@@ -373,7 +373,7 @@
 * Q.Uploader.js 文件上传管理器 1.0
 * https://github.com/devin87/web-uploader
 * author:devin87@qq.com  
-* update:2017/02/09 09:03
+* update:2017/08/14 16:14
 */
 (function (window, undefined) {
     "use strict";
@@ -951,7 +951,7 @@
                 url = self.url,
                 xhr = new XMLHttpRequest();
 
-            task.queryUrl = url + (url.indexOf("?") == -1 ? "?" : "&") + "action=query&hash=" + (task.hash || task.name);
+            task.queryUrl = url + (url.indexOf("?") == -1 ? "?" : "&") + "action=query&hash=" + (task.hash || encodeURIComponent(task.name)) + "&fileName=" + encodeURIComponent(task.name);
 
             //秒传查询事件
             self.fire("sliceQuery", task);
@@ -1223,6 +1223,9 @@
         CANCEL: UPLOAD_STATE_CANCEL,
         ERROR: UPLOAD_STATE_ERROR,
 
+        //UI对象,用于多套UI共存
+        UI: {},
+
         //默认语言
         Lang: {
             status_ready: "准备中",
@@ -1241,9 +1244,9 @@
 })(window);
 
 ﻿/*
-* Q.Uploader.UI.js 上传管理器界面
+* Q.Uploader.UI.File.js 上传管理器界面
 * author:devin87@qq.com  
-* update:2017/02/09 09:06
+* update:2017/08/14 15:28
 */
 (function (window, undefined) {
     "use strict";
@@ -1273,13 +1276,13 @@
         if (ele) ele.innerHTML = html || "";
     }
 
-    //实现默认的UI接口
-    Uploader.extend({
+    //文件上传UI(默认UI)
+    Uploader.UI.File = {
         init: function () {
             var boxView = this.ops.view;
             if (!boxView) return;
 
-            addClass(boxView, this.html5 ? "html5" : "html4");
+            addClass(boxView, "ui-file " + (this.html5 ? "html5" : "html4"));
         },
 
         //绘制任务UI
@@ -1414,6 +1417,9 @@
 
             addClass(task.box, "u-over");
         }
-    });
+    };
+
+    //实现默认的UI接口
+    Uploader.extend(Uploader.UI.File);
 
 })(window);

@@ -11,11 +11,11 @@ module.exports = {
 
         list: [
             {
-                src: ["Q.js", "Q.Uploader.js", "Q.Uploader.UI.js"],
-                dest: "/Q.Uploader.all.js"
+                src: ["Q.js", "Q.Uploader.js", "Q.Uploader.UI.File.js"],
+                dest: "/Q.Uploader.file.all.js"
             },
             {
-                src: ["Q.js", "Q.Uploader.js", "Q.Uploader.Image.js"],
+                src: ["Q.js", "Q.Uploader.js", "Q.Uploader.UI.Image.js"],
                 dest: "/Q.Uploader.image.all.js"
             }
         ],

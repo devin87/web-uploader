@@ -1,8 +1,8 @@
 ﻿/// <reference path="Q.Uploader.js" />
 /*
-* Q.Uploader.UI.js 上传管理器界面
+* Q.Uploader.UI.File.js 上传管理器界面
 * author:devin87@qq.com  
-* update:2017/02/09 09:06
+* update:2017/08/14 15:28
 */
 (function (window, undefined) {
     "use strict";
@@ -32,13 +32,13 @@
         if (ele) ele.innerHTML = html || "";
     }
 
-    //实现默认的UI接口
-    Uploader.extend({
+    //文件上传UI(默认UI)
+    Uploader.UI.File = {
         init: function () {
             var boxView = this.ops.view;
             if (!boxView) return;
 
-            addClass(boxView, this.html5 ? "html5" : "html4");
+            addClass(boxView, "ui-file " + (this.html5 ? "html5" : "html4"));
         },
 
         //绘制任务UI
@@ -173,6 +173,9 @@
 
             addClass(task.box, "u-over");
         }
-    });
+    };
+
+    //实现默认的UI接口
+    Uploader.extend(Uploader.UI.File);
 
 })(window);
