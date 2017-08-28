@@ -34,13 +34,13 @@ Node.js 演示见[web-uploader-node](https://github.com/devin87/web-uploader-nod
 1. 导入样式文件(若自己实现UI接口，则无需导入默认的样式文件)
 <link href="css/uploader.css" rel="stylesheet" type="text/css" />
 
-2. 导入js文件（可自行合并，若自己实现UI接口，则无需导入 Q.Uploader.UI.js 文件）
+2. 导入js文件（可自行合并，若自己实现UI接口，则无需导入 Q.Uploader.UI.File.js 文件）
 <script type="text/javascript" src="js/Q.js"></script>
 <script type="text/javascript" src="js/Q.Uploader.js"></script>
-<script type="text/javascript" src="js/Q.Uploader.UI.js"></script>
+<script type="text/javascript" src="js/Q.Uploader.UI.File.js"></script>
 
 或
-<script type="text/javascript" src="Q.Uploader.all.js"></script>
+<script type="text/javascript" src="Q.Uploader.file.all.js"></script>
 
 3. 调用
 new Q.Uploader({
@@ -59,7 +59,7 @@ new Q.Uploader({
 2. 导入js文件（可自行合并）
 <script type="text/javascript" src="js/Q.js"></script>
 <script type="text/javascript" src="js/Q.Uploader.js"></script>
-<script type="text/javascript" src="js/Q.Uploader.Image.js"></script>
+<script type="text/javascript" src="js/Q.Uploader.UI.Image.js"></script>
 
 或
 <script type="text/javascript" src="Q.Uploader.image.all.js"></script>
