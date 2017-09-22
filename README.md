@@ -46,8 +46,8 @@ Node.js 演示见[web-uploader-node](https://github.com/devin87/web-uploader-nod
 new Q.Uploader({
     url:"api/upload.ashx",
 
-    target: element,    //上传按钮
-    view: element       //上传任务视图
+    target: element,    //上传按钮,可为数组 eg:[element1,element2]
+    view: element       //上传任务视图(若自己实现UI接口，则无需指定此参数)
 });
 ```
 
@@ -68,8 +68,8 @@ new Q.Uploader({
 new Q.Uploader({
     url:"api/upload.ashx",
 
-    target: element,    //上传按钮
-    view: element,      //上传任务视图
+    target: element,    //上传按钮,可为数组 eg:[element1,element2]
+    view: element,      //上传任务视图(若自己实现UI接口，则无需指定此参数)
 
     allows: ".jpg,.png,.gif,.bmp",
 
@@ -88,7 +88,7 @@ new Q.Uploader({
 new Q.Uploader({
     //--------------- 必填 ---------------
     url: "",            //上传路径
-    target: element,    //上传按钮
+    target: element,    //上传按钮,可为数组 eg:[element1,element2]
     view: element,      //上传任务视图(若自己实现UI接口，则无需指定此参数)
 
     //--------------- 可选 ---------------

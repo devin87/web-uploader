@@ -1,0 +1,39 @@
+﻿<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>文件上传</title>
+    <link href="demo.css" rel="stylesheet" type="text/css" />
+    <link href="../css/uploader.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+    <div id="header" class="header">Header</div>
+    <div class="main">
+        <div class="content">
+            <div class="contentin">
+                <div>
+                    <a id="upload-target" class="x-button">上传按钮1</a>
+                    <a id="upload-target2" class="x-button">上传按钮2</a>
+                </div>
+                <div id="upload-view"></div>
+            </div>
+        </div>
+        <div id="sidebar" class="sidebar"></div>
+    </div>
+
+    <script type="text/javascript" src="demo.js"></script>
+
+    <script type="text/javascript" src="../js/Q.js"></script>
+    <script type="text/javascript" src="../js/Q.Uploader.js"></script>
+    <script type="text/javascript" src="../js/Q.Uploader.UI.File.js"></script>
+
+    <script type="text/javascript">
+        new Q.Uploader({
+            url: UPLOAD_URL + "?type=file",
+            target: [document.getElementById("upload-target"), document.getElementById("upload-target2")],
+            view: document.getElementById("upload-view")
+        });
+    </script>
+</body>
+</html>

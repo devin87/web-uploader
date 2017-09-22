@@ -1,7 +1,7 @@
 ﻿/*
 * Q.js for Uploader
 * author:devin87@qq.com
-* update:2015/10/23 14:55
+* update:2017/09/22 14:50
 */
 (function (window, undefined) {
     "use strict";
@@ -52,6 +52,16 @@
         forEach: function (obj, fn, bind) {
             for (var key in obj) {
                 if (has.call(obj, key)) fn.call(bind, key, obj[key], obj);
+            }
+        }
+    });
+
+    extend(Array.prototype, {
+        //遍历对象
+        forEach: function (fn, bind) {
+            var self = this;
+            for (var i = 0, len = self.length; i < len; i++) {
+                if (i in self) fn.call(bind, self[i], i, self);
             }
         }
     });

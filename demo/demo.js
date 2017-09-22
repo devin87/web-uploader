@@ -23,6 +23,7 @@
         { title: "html4+滚动区域", href: "scroll-view.html" },
         { title: "文件单选", href: "simple-single.html" },
         { title: "手动上传", href: "simple-manual.html" },
+        { title: "一个上传管理器多个按钮", href: "targets.html" },
         { title: "多个上传管理器", href: "tabs.html" },
         { title: "拖拽上传（仅html5）", href: "drag-drop.html" },
         { title: "多UI（文件上传+图片上传）", href: "image-and-file.html" },

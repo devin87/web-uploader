@@ -1,7 +1,7 @@
 ﻿/*
 * Q.js for Uploader
 * author:devin87@qq.com
-* update:2015/10/23 14:55
+* update:2017/09/22 14:50
 */
 (function (window, undefined) {
     "use strict";
@@ -52,6 +52,16 @@
         forEach: function (obj, fn, bind) {
             for (var key in obj) {
                 if (has.call(obj, key)) fn.call(bind, key, obj[key], obj);
+            }
+        }
+    });
+
+    extend(Array.prototype, {
+        //遍历对象
+        forEach: function (fn, bind) {
+            var self = this;
+            for (var i = 0, len = self.length; i < len; i++) {
+                if (i in self) fn.call(bind, self[i], i, self);
             }
         }
     });
@@ -373,7 +383,7 @@
 * Q.Uploader.js 文件上传管理器 1.0
 * https://github.com/devin87/web-uploader
 * author:devin87@qq.com  
-* update:2017/08/28 13:50
+* update:2017/09/22 15:03
 */
 (function (window, undefined) {
     "use strict";
@@ -509,7 +519,7 @@
         new Uploader({
             //--------------- 必填 ---------------
             url: "",            //上传路径
-            target: element,    //上传按钮
+            target: element,    //上传按钮，可为数组
             view: element,      //上传任务视图(需加载UI接口默认实现)
 
             //--------------- 可选 ---------------
@@ -573,7 +583,11 @@
         self.url = ops.url;                      //上传路径
         self.dataType = ops.dataType || "json";  //返回值类型
         self.data = ops.data;                    //上传参数
-        self.target = ops.target;                //上传按钮
+
+        self.targets = ops.target || [];
+        if (!self.targets.forEach) self.targets = [self.targets];
+
+        self.target = self.targets[0];          //当前上传按钮
 
         //是否以html5(ajax)方式上传
         self.html5 = support_html5_upload && !!def(ops.html5, true);
@@ -647,7 +661,6 @@
             self._inited = true;
 
             var guid = self.guid,
-                target = self.target,
                 container = self.container;
 
             var boxInput = createEle("div", "upload-input " + guid);
@@ -685,16 +698,26 @@
                 });
             }
 
-            if (self.clickTrigger) {
-                addEvent(target, "click", function (e) {
-                    if (self.fire("select", e) === false) return;
+            self.targets.forEach(function (target) {
+                if (self.clickTrigger) {
+                    addEvent(target, "click", function (e) {
+                        if (self.fire("select", e) === false) return;
 
-                    self.resetInput();
+                        self.resetInput();
 
-                    //注意:ie9及以下可以弹出文件选择框,但获取不到选择数据,拒绝访问。
-                    triggerEvent(self.inputFile, "click");
-                });
-            } else {
+                        //注意:ie9及以下可以弹出文件选择框,但获取不到选择数据,拒绝访问。
+                        triggerEvent(self.inputFile, "click");
+                    });
+                } else {
+                    addEvent(target, "mouseover", function (e) {
+                        self.target = this;
+                        self.updatePos();
+                    });
+                }
+            });
+
+            //html4点击事件
+            if (!self.clickTrigger) {
                 addEvent(boxInput, "click", function (e) {
                     if (self.fire("select", e) === false) stopEvent(e);
                 });
