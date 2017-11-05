@@ -84,7 +84,7 @@ new Q.Uploader({
 ```
 
 ### 完整调用示例
-```
+```javascript
 new Q.Uploader({
     //--------------- 必填 ---------------
     url: "",            //上传路径
@@ -118,41 +118,121 @@ new Q.Uploader({
     isMd5: false,                 //是否计算上传文件md5值
     isUploadAfterHash:true,       //是否在Hash计算完毕后再上传
 
-    container:element, //一般无需指定
-    getPos:function,   //一般无需指定
+    container:document.body,      //一般无需指定
+    getPos: function(){ },        //一般无需指定
 
     //上传回调事件(function)
     on: {
-        init,          //上传管理器初始化完毕后触发
+        init: function(){ },              //上传管理器初始化完毕后触发
     
-        select,        //点击上传按钮准备选择上传文件之前触发,返回false可禁止选择文件
-        add,           //添加任务之前触发,返回false将跳过该任务
-        upload,        //上传任务之前触发,返回false将跳过该任务
-        hashProgress,  //文件hash进度（仅isMd5为true时有效）
-        hash,          //查询状态之前触发（for 秒传或续传）
-        sliceQuery,    //秒传查询之前触发
-        sliceUpload,   //分片上传之前触发，返回false将跳过该分片
-        send,          //发送数据之前触发,返回false将跳过该任务
+        select: function(task){ },        //点击上传按钮准备选择上传文件之前触发,返回false可禁止选择文件
+        add: function(task){ },           //添加任务之前触发,返回false将跳过该任务
+        upload: function(task){ },        //上传任务之前触发,返回false将跳过该任务
+        hashProgress: function(task){ },  //文件hash进度（仅isMd5为true时有效）
+        hash: function(task){ },          //查询状态之前触发（for 秒传或续传）
+        sliceQuery: function(task){ },    //秒传查询之前触发
+        sliceUpload: function(task){ },   //分片上传之前触发，返回false将跳过该分片
+        send: function(task){ },          //发送数据之前触发,返回false将跳过该任务
     
-        cancel,        //取消上传任务后触发
-        remove,        //移除上传任务后触发
+        cancel: function(task){ },        //取消上传任务后触发
+        remove: function(task){ },        //移除上传任务后触发
     
-        progress,      //上传进度发生变化后触发(仅html5模式有效)
-        complete       //上传完成后触发
+        progress: function(task){ },      //上传进度发生变化后触发(仅html5模式有效)
+        complete: function(task){ }       //上传完成后触发
     },
 
     //UI接口(function),若指定了以下方法,将忽略默认实现
     UI:{
-        init,       //执行初始化操作
-        draw,       //添加任务后绘制任务界面
-        update,     //更新任务界面  
-        over        //任务上传完成
+        init: function(){ },           //执行初始化操作
+        draw: function(task){ },       //添加任务后绘制任务界面
+        update: function(task){ },     //更新任务界面  
+        over: function(){ }            //任务上传完成
     }
 });
 ```
 
-说明：回调事件(add、upload、hash、sliceUpload、send)支持异步调用，只需在后面加上Async即可，比如在上传之前需要访问服务器验证数据，通过的就上传，否则跳过
+task属性说明
 ```
+task = {
+    id,         //任务编号
+
+    name,       //上传文件名（包括扩展名）
+    ext,        //上传文件扩展名
+    size,       //上传文件大小（单位：Byte，若获取不到大小，则值为-1）
+
+    input,      //上传控件
+    file,       //上传数据（仅 html5）
+
+    state,      //上传状态
+
+    disabled,   //若为true，表示禁止上传的文件
+    skip,       //若为true，表示要跳过的任务
+
+    //分片上传
+    sliceCount, //分片总数
+    sliceIndex, //当前分片数
+    sliceStart, //当前分片上传的起始点
+    sliceEnd,   //当前分片上传的结束点
+
+    //上传后会有如下属性（由于浏览器支持问题，以下部分属性可能不存在）
+    xhr,        //XMLHttpRequest对象（仅 html5）
+
+    total,      //总上传大小（单位：Byte）
+    loaded,     //已上传大小（单位：Byte）
+    speed,      //上传速度（单位：Byte/s）
+
+    avgSpeed,   //平均上传速度（仅上传完毕）
+
+    startTime,  //开始上传的时间
+    endTime,    //结束上传的时间（仅上传完毕）
+
+    timeHash,   //文件hash所用时间（毫秒，仅当isMd5为true）
+    time,       //上传所用时间（毫秒）
+
+    deleted,     //若为true，表示已删除的文件
+
+    //文件成功上传
+    queryOK,     //仅秒传成功时为true
+    response,    //服务器返回的字符串
+    json         //response解析后的JSON对象(仅当 dataType 为json)
+};
+```
+
+回调事件示例
+```javascript
+on: {
+    add: function(task) {
+        //disabled为true的task不会上传，此处无需返回false
+        if (task.disabled) return alert("允许上传的文件格式为：" + this.ops.allows);
+
+        //判断上传文件大小，不支持则跳过
+        if (task.size == -1) return;
+        
+        //判断上传文件大小
+        if (task.size > 2*1024*1024) {
+            alert('最大允许上传的文件大小为2MB');
+            
+            //返回false时该文件不会添加到上传队列
+            return false;
+        }
+    },
+    upload: function(task) {
+        //可以针对单个task指定上传参数,该参数将以POST的方式提交到服务器
+        task.data = {};
+    },
+    complete: function (task) {
+        var json = task.json;
+        if (!json) return alert("上传已完成，但无法获取服务器返回数据！");
+        if (json.ret != 1) return alert(json.msg || "上传失败！");
+
+        alert("上传成功！");
+    }
+}
+```
+
+
+说明：回调事件(add、upload、hash、sliceUpload、send)支持异步调用，只需在后面加上Async即可，比如在上传之前需要访问服务器验证数据，通过的就上传，否则跳过
+```javascript
 on: {
     uploadAsync: function (task, callback) {
         $.postJSON(url, function (json) {
@@ -222,57 +302,10 @@ Uploader.extend({
     init: function () { },
 
     //绘制任务界面
-    draw: function (task) {
-        //每个task就是一个上传任务，task一般有以下属性
-        /*task = {
-            id,         //任务编号
-
-            name,       //上传文件名（包括扩展名）
-            ext,        //上传文件扩展名
-            size,       //上传文件大小（单位：Byte，若获取不到大小，则值为-1）
-
-            input,      //上传控件
-            file,       //上传数据（仅 html5）
-
-            state,      //上传状态
-
-            disabled,   //若为true，表示禁止上传的文件
-            skip,       //若为true，表示要跳过的任务
-
-            //分片上传
-            sliceCount, //分片总数
-            sliceIndex, //当前分片数
-            sliceStart, //当前分片上传的起始点
-            sliceEnd,   //当前分片上传的结束点
-
-            //上传后会有如下属性（由于浏览器支持问题，以下部分属性可能不存在）
-            xhr,        //XMLHttpRequest对象（仅 html5）
-
-            total,      //总上传大小（单位：Byte）
-            loaded,     //已上传大小（单位：Byte）
-            speed,      //上传速度（单位：Byte/s）
-
-            avgSpeed,   //平均上传速度（仅上传完毕）
-
-            startTime,  //开始上传的时间
-            endTime,    //结束上传的时间（仅上传完毕）
-
-            timeHash,   //文件hash所用时间（毫秒，仅当isMd5为true）
-            time,       //上传所用时间（毫秒）
-
-            deleted,     //若为true，表示已删除的文件
-
-            //文件成功上传
-            queryOK,     //仅秒传成功时为true
-            response,    //服务器返回的字符串
-            json         //response解析后的JSON对象(仅当 dataType 为json)
-        };*/
-    },
+    draw: function (task) { },
 
     //更新上传进度
-    update: function (task) {
-
-    },
+    update: function (task) { },
 
     //上传完毕，一般无需处理
     over: function () { }
