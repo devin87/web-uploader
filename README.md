@@ -95,7 +95,7 @@ new Q.Uploader({
     html5: true,       //是否启用html5上传,若浏览器不支持,则自动禁用
     multiple: true,    //选择文件时是否允许多选,若浏览器不支持,则自动禁用(仅html5模式有效)
 
-    clickTrigger:true, //是否启用click触发文件选择 eg: input.click() => ie9及以下不支持
+    clickTrigger:true, //是否启用click触发文件选择 eg: input.click() => IE9及以下不支持
 
     auto: true,        //添加任务后是否立即上传
 
@@ -109,6 +109,8 @@ new Q.Uploader({
 
     allows: "",        //允许上传的文件类型(扩展名),多个之间用逗号隔开
     disallows: "",     //禁止上传的文件类型(扩展名)
+
+    maxSize: 0,        //允许上传的最大文件大小,字节,为0表示不限(仅对支持的浏览器生效,eg: IE10+、Firefox、Chrome)
 
     //秒传+分片上传+断点续传,具体见示例（demo/slice.html）
     isSlice: false,               //是否启用分片上传，若为true，则isQueryState和isMd5默认为true
@@ -165,7 +167,7 @@ task = {
 
     state,      //上传状态
 
-    disabled,   //若为true，表示禁止上传的文件
+    limited,    //若存在值，表示禁止上传的文件类型
     skip,       //若为true，表示要跳过的任务
 
     //分片上传
@@ -202,19 +204,14 @@ task = {
 ```javascript
 on: {
     add: function(task) {
-        //disabled为true的task不会上传，此处无需返回false
-        if (task.disabled) return alert("允许上传的文件格式为：" + this.ops.allows);
-
-        //判断上传文件大小，不支持则跳过
-        if (task.size == -1) return;
-        
-        //判断上传文件大小
-        if (task.size > 2*1024*1024) {
-            alert('最大允许上传的文件大小为2MB');
-            
-            //返回false时该文件不会添加到上传队列
-            return false;
+        //task.limited存在值的任务不会上传，此处无需返回false
+        switch(task.limited){
+            case 'ext':return alert("允许上传的文件格式为：" + this.ops.allows);
+            case 'size':return alert("允许上传的最大文件大小为：" + Q.formatSize(this.ops.maxSize));
         }
+
+        //自定义判断，返回false时该文件不会添加到上传队列
+        //return false;
     },
     upload: function(task) {
         //可以针对单个task指定上传参数,该参数将以POST的方式提交到服务器

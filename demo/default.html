@@ -40,7 +40,8 @@
             target: document.getElementById("upload-target"),
             view: document.getElementById("upload-view"),
 
-            //allows: ".txt,.jpg,.png,.gif,.zip,.rar,.7z",
+            allows: ".txt,.jpg,.png,.gif,.mp4,.zip", //允许上传的文件格式
+            maxSize: 2 * 1024 * 1024,                //允许上传的最大文件大小,字节,为0表示不限(仅对支持的浏览器生效)
 
             //每次上传都会发送的参数(POST方式)
             data: { user: "Devin" },
@@ -63,10 +64,15 @@
             on: {
                 //添加之前触发
                 add: function (task) {
-                    //不会添加exe文件
-                    //if (task.ext == ".exe") return false;
+                    //task.limited存在值的任务不会上传，此处无需返回false
+                    switch (task.limited) {
+                        case 'ext': return alert("允许上传的文件格式为：" + this.ops.allows);
+                        case 'size': return alert("允许上传的最大文件大小为：" + Q.formatSize(this.ops.maxSize));
+                    }
 
-                    if (task.disabled) return alert("允许上传的文件格式为：" + this.ops.allows);
+                    //自定义判断，返回false时该文件不会添加到上传队列
+                    //return false;
+
                     log(task.name + ": 已添加!");
                 },
 
