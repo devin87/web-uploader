@@ -175,6 +175,7 @@ task = {
     sliceIndex, //当前分片数
     sliceStart, //当前分片上传的起始点
     sliceEnd,   //当前分片上传的结束点
+    sliceBlob,  //当前分片数据
 
     //上传后会有如下属性（由于浏览器支持问题，以下部分属性可能不存在）
     xhr,        //XMLHttpRequest对象（仅 html5）

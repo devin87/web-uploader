@@ -2,7 +2,7 @@
 /*
 * Q.Uploader.slice.js 分片上传
 * author:devin87@qq.com  
-* update:2017/02/10 11:18
+* update:2018/02/09 11:02
 */
 (function (window, undefined) {
     "use strict";
@@ -90,13 +90,13 @@
                 task.sliceStart = start;
                 task.sliceEnd = end;
                 task.sliceIndex = Math.ceil(end / chunkSize);
+                task.sliceBlob = blobSlice.call(file, start, end);
 
                 //分片上传事件，分片上传之前触发，返回false将跳过该分片
                 self.fire("sliceUpload", task, function (result) {
                     if (result === false) return next_upload();
 
-                    var chunk = blobSlice.call(file, start, end);
-                    upload(chunk, next_upload);
+                    upload(task.sliceBlob, next_upload);
                 });
             };
 
