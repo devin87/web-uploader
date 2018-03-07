@@ -21,6 +21,7 @@
         { title: "指定上传类型", href: "simple-filetype.html" },
         { title: "图片预览+缩放+上传", href: "image.html" },
         { title: "html4+滚动区域", href: "scroll-view.html" },
+        { title: "html4+fixed区域", href: "fixed-view.html" },
         { title: "文件单选", href: "simple-single.html" },
         { title: "手动上传", href: "simple-manual.html" },
         { title: "一个上传管理器多个按钮", href: "targets.html" },
