@@ -2,7 +2,7 @@
 /*
 * Q.Uploader.slice.js 分片上传
 * author:devin87@qq.com  
-* update:2018/02/09 11:02
+* update:2018/03/07 10:04
 */
 (function (window, undefined) {
     "use strict";
@@ -47,15 +47,12 @@
 
                 var fd = new FormData;
 
-                //上传完毕
-                if (completed) {
-                    //处理上传参数
-                    self._process_params(task, function (k, v) {
-                        fd.append(k, v);
-                    });
+                //处理上传参数
+                self._process_params(task, function (k, v) {
+                    fd.append(k, v);
+                });
 
-                    fd.append("fileName", task.name);
-                }
+                fd.append("fileName", task.name);
 
                 fd.append(self.upName, blob, task.name);
 
