@@ -119,6 +119,7 @@ new Q.Uploader({
     isQueryState:false,           //是否查询文件状态（for 秒传或续传）
     isMd5: false,                 //是否计算上传文件md5值
     isUploadAfterHash:true,       //是否在Hash计算完毕后再上传
+    sliceRetryCount:2,            //分片上传失败重试次数
 
     container:document.body,      //一般无需指定
     getPos: function(){ },        //一般无需指定

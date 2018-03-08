@@ -2,7 +2,7 @@
 /*
 * Q.Uploader.slice.js 分片上传
 * author:devin87@qq.com  
-* update:2018/03/07 10:04
+* update:2018/03/08 09:29
 */
 (function (window, undefined) {
     "use strict";
@@ -19,10 +19,11 @@
                 size = file.size,
                 chunkSize = self.chunkSize,
                 start = task.sliceStart || 0,
+                retryCount = self.sliceRetryCount,
                 end;
 
             //分片上传
-            var upload = function (blob, callback) {
+            var upload = function (blob, callback, c) {
                 var xhr = new XMLHttpRequest(),
                     url = task.url,
                     completed = end == size;
@@ -35,15 +36,28 @@
                     self.progress(task, size, start + e.loaded);
                 }, false);
 
+                //分片上传失败
+                var process_upload_error = function () {
+                    c = +c || 0;
+                    c++;
+
+                    if (c > retryCount) return self.complete(task, Uploader.ERROR);
+
+                    //重新上传
+                    upload(blob, callback, c);
+                };
+
                 xhr.addEventListener("load", function (e) {
-                    if (completed) self.complete(task, Uploader.COMPLETE, e.target.responseText);
+                    var text = e.target.responseText;
+                    if (completed) return self.complete(task, Uploader.COMPLETE, text);
 
-                    callback();
+                    //分片上传成功继续上传
+                    if (text == 1) return callback();
+
+                    process_upload_error();
                 }, false);
 
-                xhr.addEventListener("error", function () {
-                    self.complete(task, Uploader.ERROR);
-                }, false);
+                xhr.addEventListener("error", process_upload_error, false);
 
                 var fd = new FormData;
 
@@ -53,8 +67,9 @@
                 });
 
                 fd.append("fileName", task.name);
-
                 fd.append(self.upName, blob, task.name);
+                fd.append("sliceCount", task.sliceCount);
+                fd.append("sliceIndex", task.sliceIndex);
 
                 xhr.open("POST", url);
 

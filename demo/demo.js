@@ -17,7 +17,7 @@
     var list_page = [
         { title: "默认上传", href: "default.html" },
         { title: "简单上传", href: "simple.html" },
-        { title: "秒传+断点续传（仅html5）", href: "slice.html" },
+        { title: "秒传+分片+断点续传（仅html5）", href: "slice.html" },
         { title: "指定上传类型", href: "simple-filetype.html" },
         { title: "图片预览+缩放+上传", href: "image.html" },
         { title: "html4+滚动区域", href: "scroll-view.html" },

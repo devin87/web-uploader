@@ -4,7 +4,7 @@
 * Q.Uploader.js 文件上传管理器 1.0
 * https://github.com/devin87/web-uploader
 * author:devin87@qq.com  
-* update:2017/12/04 15:04
+* update:2018/03/08 09:01
 */
 (function (window, undefined) {
     "use strict";
@@ -167,6 +167,7 @@
             isQueryState:false,           //是否查询文件状态（for 秒传或续传）
             isMd5: false,                 //是否计算上传文件md5值
             isUploadAfterHash:true,       //是否在Hash计算完毕后再上传
+            sliceRetryCount:2,            //分片上传失败重试次数
 
             container:element, //一般无需指定
             getPos:function,   //一般无需指定
@@ -241,6 +242,7 @@
         self.isQueryState = !!def(ops.isQueryState, self.isSlice);    //是否查询文件状态（for 秒传或续传）
         self.isMd5 = !!def(ops.isMd5, self.isSlice);                  //是否计算上传文件md5值
         self.isUploadAfterHash = ops.isUploadAfterHash !== false;     //是否在Hash计算完毕后再上传
+        self.sliceRetryCount = ops.sliceRetryCount == undefined ? 2 : +ops.sliceRetryCount || 0; //分片上传失败重试次数
 
         //ie9及以下不支持click触发(即使能弹出文件选择框,也无法获取文件数据,报拒绝访问错误)
         //若上传按钮位置不确定(比如在滚动区域内),则无法触发文件选择
