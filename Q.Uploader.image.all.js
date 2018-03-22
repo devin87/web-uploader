@@ -383,7 +383,7 @@
 * Q.Uploader.js 文件上传管理器 1.0
 * https://github.com/devin87/web-uploader
 * author:devin87@qq.com  
-* update:2018/03/08 09:01
+* update:2018/03/22 10:18
 */
 (function (window, undefined) {
     "use strict";
@@ -535,6 +535,7 @@
             workerThread: 1,   //同时允许上传的任务数(仅html5模式有效)
 
             upName: "upfile",  //上传参数名称,若后台需要根据name来获取上传数据,可配置此项
+            accept: "",        //指定浏览器接受的文件类型 eg:image/*,video/*
 
             allows: "",        //允许上传的文件类型(扩展名),多个之间用逗号隔开
             disallows: "",     //禁止上传的文件类型(扩展名)
@@ -576,74 +577,11 @@
             }
         });
     */
-    function Uploader(ops) {
-        var self = this;
-
-        //---------------- settings ----------------
+    function Uploader(settings) {
+        var self = this,
+            ops = settings || {};
 
         self.guid = ops.guid || "uploader" + (++UPLOADER_GUID);
-
-        self.url = ops.url;                      //上传路径
-        self.dataType = ops.dataType || "json";  //返回值类型
-        self.data = ops.data;                    //上传参数
-
-        self.targets = ops.target || [];
-        if (!self.targets.forEach) self.targets = [self.targets];
-
-        self.target = self.targets[0];          //当前上传按钮
-
-        //是否以html5(ajax)方式上传
-        self.html5 = support_html5_upload && !!def(ops.html5, true);
-
-        //是否允许多选(仅在启用了html5的情形下生效)
-        //在html4模式下,input是一个整体,若启用多选,将无法针对单一的文件进行操作(eg:根据扩展名筛选、取消、删除操作等)
-        //若无需对文件进行操作,可通过 uploader.multiple = true 强制启用多选(不推荐)
-        self.multiple = support_multiple_select && self.html5 && !!def(ops.multiple, true);
-
-        //是否启用click触发文件选择 eg: input.click() => ie9及以下不支持
-        self.clickTrigger = support_file_click_trigger && !!def(ops.clickTrigger, true);
-
-        //允许同时上传的数量(html5有效)
-        //由于设计原因,html4仅能同时上传1个任务,请不要更改
-        self.workerThread = self.html5 ? ops.workerThread || 1 : 1;
-        self.workerIdle = self.workerThread;
-
-        self.auto = ops.auto !== false;                 //是否在添加任务后自动开始
-
-        self.upName = ops.upName || "upfile";           //上传参数名
-
-        self.allows = split_to_map(ops.allows);         //允许上传的文件类型（扩展名）,多个之间用逗号隔开 eg:.jpg,.png
-        self.disallows = split_to_map(ops.disallows);   //禁止上传的文件类型（扩展名）,多个之间用逗号隔开
-        self.maxSize = +ops.maxSize || 0;
-
-        self.chunkSize = ops.chunkSize || 2 * 1024 * 1024;            //分片上传大小
-        self.isSlice = !!ops.isSlice;                                 //是否启用分片上传
-        self.isQueryState = !!def(ops.isQueryState, self.isSlice);    //是否查询文件状态（for 秒传或续传）
-        self.isMd5 = !!def(ops.isMd5, self.isSlice);                  //是否计算上传文件md5值
-        self.isUploadAfterHash = ops.isUploadAfterHash !== false;     //是否在Hash计算完毕后再上传
-        self.sliceRetryCount = ops.sliceRetryCount == undefined ? 2 : +ops.sliceRetryCount || 0; //分片上传失败重试次数
-
-        //ie9及以下不支持click触发(即使能弹出文件选择框,也无法获取文件数据,报拒绝访问错误)
-        //若上传按钮位置不确定(比如在滚动区域内),则无法触发文件选择
-        //设置原则:getPos需返回上传按钮距container的坐标
-        self.container = ops.container || document.body;
-        //函数,获取上传按钮距container的坐标,返回格式 eg:{ left: 100, top: 100 }
-        if (ops.getPos) self.getPos = ops.getPos;
-
-        //UI接口,此处将覆盖 prototype 实现
-        var UI = ops.UI || {};
-        if (UI.init) self.init = UI.init;             //执行初始化操作
-        if (UI.draw) self.draw = UI.draw;             //添加任务后绘制任务界面
-        if (UI.update) self.update = UI.update;       //更新任务界面  
-        if (UI.over) self.over = UI.over;             //任务上传完成
-
-        //上传回调事件
-        self.fns = ops.on || {};
-
-        //上传选项
-        self.ops = ops;
-
-        //---------------- init ----------------
 
         self.list = [];
         self.map = {};
@@ -651,12 +589,96 @@
         self.index = 0;
         self.started = false;
 
-        self._init();
+        self.set(ops)._init();
     }
 
     Uploader.prototype = {
         //修复constructor指向
         constructor: Uploader,
+
+        set: function (settings) {
+            var self = this,
+                ops = extend(settings, self.ops);
+
+            self.url = ops.url;                          //上传路径
+            self.dataType = ops.dataType || "json";      //返回值类型
+            self.data = ops.data;                        //上传参数
+
+            //上传按钮
+            self.targets = ops.target || [];
+            if (!self.targets.forEach) self.targets = [self.targets];
+
+            self.target = self.targets[0];          //当前上传按钮
+
+            //是否以html5(ajax)方式上传
+            self.html5 = support_html5_upload && !!def(ops.html5, true);
+
+            //是否允许多选(仅在启用了html5的情形下生效)
+            //在html4模式下,input是一个整体,若启用多选,将无法针对单一的文件进行操作(eg:根据扩展名筛选、取消、删除操作等)
+            //若无需对文件进行操作,可通过 uploader.multiple = true 强制启用多选(不推荐)
+            self.multiple = support_multiple_select && self.html5 && !!def(ops.multiple, true);
+
+            //是否启用click触发文件选择 eg: input.click() => IE9及以下不支持
+            self.clickTrigger = support_file_click_trigger && !!def(ops.clickTrigger, true);
+
+            //允许同时上传的数量(html5有效)
+            //由于设计原因,html4仅能同时上传1个任务,请不要更改
+            self.workerThread = self.html5 ? ops.workerThread || 1 : 1;
+
+            //空闲的线程数量
+            self.workerIdle = self.workerThread;
+
+            //是否在添加任务后自动开始
+            self.auto = ops.auto !== false;
+
+            //input元素的name属性
+            self.upName = ops.upName || "upfile";
+
+            //input元素的accept属性,用来指定浏览器接受的文件类型 eg:image/*,video/*
+            //注意：IE9及以下不支持accept属性
+            self.accept = ops.accept;
+
+            //允许上传的文件类型（扩展名）,多个之间用逗号隔开 eg:.jpg,.png
+            self.allows = split_to_map(ops.allows);
+
+            //禁止上传的文件类型（扩展名）,多个之间用逗号隔开
+            self.disallows = split_to_map(ops.disallows);
+
+            //允许上传的最大文件大小,字节,为0表示不限(仅对支持的浏览器生效,eg: IE10+、Firefox、Chrome)
+            self.maxSize = +ops.maxSize || 0;
+
+            self.isSlice = !!ops.isSlice;                                 //是否启用分片上传
+            self.chunkSize = +ops.chunkSize || 2 * 1024 * 1024;           //分片上传大小
+            self.isQueryState = !!def(ops.isQueryState, self.isSlice);    //是否查询文件状态（for 秒传或续传）
+            self.isMd5 = !!def(ops.isMd5, self.isSlice);                  //是否计算上传文件md5值
+            self.isUploadAfterHash = ops.isUploadAfterHash !== false;     //是否在Hash计算完毕后再上传
+            self.sliceRetryCount = ops.sliceRetryCount == undefined ? 2 : +ops.sliceRetryCount || 0; //分片上传失败重试次数
+
+            //ie9及以下不支持click触发(即使能弹出文件选择框,也无法获取文件数据,报拒绝访问错误)
+            //若上传按钮位置不确定(比如在滚动区域内),则无法触发文件选择
+            //设置原则:getPos需返回上传按钮距container的坐标
+            self.container = ops.container || document.body;
+
+            //函数,获取上传按钮距container的坐标,返回格式 eg:{ left: 100, top: 100 }
+            if (ops.getPos) self.getPos = ops.getPos;
+
+            //UI接口,此处将覆盖 prototype 实现
+            var UI = ops.UI || {};
+            if (UI.init) self.init = UI.init;             //执行初始化操作
+            if (UI.draw) self.draw = UI.draw;             //添加任务后绘制任务界面
+            if (UI.update) self.update = UI.update;       //更新任务界面  
+            if (UI.over) self.over = UI.over;             //任务上传完成
+
+            //上传回调事件
+            self.fns = ops.on || {};
+
+            //上传选项
+            self.ops = ops;
+
+            if (self.accept && !self.clickTrigger) self.resetInput();
+
+            return self;
+        },
 
         //初始化上传管理器
         _init: function () {
@@ -740,10 +762,11 @@
         //重置上传控件
         resetInput: function () {
             var self = this,
-
                 boxInput = self.boxInput;
 
-            boxInput.innerHTML = '<input type="file" name="' + self.upName + '" style="' + (self.clickTrigger ? 'visibility: hidden;' : 'font-size:100px;') + '"' + (self.multiple ? ' multiple="multiple"' : '') + '>';
+            if (!boxInput) return self;
+
+            boxInput.innerHTML = '<input type="file" name="' + self.upName + '"' + (self.accept ? 'accept="' + self.accept + '"' : '') + ' style="' + (self.clickTrigger ? 'visibility: hidden;' : 'font-size:100px;') + '"' + (self.multiple ? ' multiple="multiple"' : '') + '>';
 
             var inputFile = getFirst(boxInput);
 

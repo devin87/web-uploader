@@ -95,7 +95,7 @@ new Q.Uploader({
     html5: true,       //是否启用html5上传,若浏览器不支持,则自动禁用
     multiple: true,    //选择文件时是否允许多选,若浏览器不支持,则自动禁用(仅html5模式有效)
 
-    clickTrigger:true, //是否启用click触发文件选择 eg: input.click() => IE9及以下不支持
+    clickTrigger:true, //是否启用click触发文件选择 eg: input.click()  =>  IE9及以下不支持
 
     auto: true,        //添加任务后是否立即上传
 
@@ -106,6 +106,7 @@ new Q.Uploader({
     workerThread: 1,   //同时允许上传的任务数(仅html5模式有效)
 
     upName: "upfile",  //上传参数名称,若后台需要根据name来获取上传数据,可配置此项
+    accept: "",        //指定浏览器接受的文件类型 eg:image/*,video/*  =>  IE9及以下不支持
 
     allows: "",        //允许上传的文件类型(扩展名),多个之间用逗号隔开
     disallows: "",     //禁止上传的文件类型(扩展名)
@@ -266,6 +267,9 @@ uploader.list
 
 //当前上传任务索引 => var task = uploader.list[uploader.index];
 uploader.index
+
+//更改上传配置
+uploader.set(settings);
 
 //添加上传任务，支持文件多选、input元素和文件对象 => input.files | input | file
 uploader.add(input_or_file);

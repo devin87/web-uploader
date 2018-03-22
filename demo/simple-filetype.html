@@ -5,6 +5,9 @@
     <title>文件上传 - 指定上传类型</title>
     <link href="demo.css" rel="stylesheet" type="text/css" />
     <link href="../css/uploader.css" rel="stylesheet" type="text/css" />
+    <style type="text/css">
+        #upload-view { margin-top: 10px; }
+    </style>
 </head>
 
 <body>
@@ -13,7 +16,9 @@
         <div class="content">
             <div class="contentin">
                 <div>
-                    <a id="upload-target" class="x-button">选择文件并上传</a>
+                    <a id="upload-image" class="x-button" x="image">选择图片</a>
+                    <a id="upload-video" class="x-button" x="video">选择视频</a>
+                    <a id="upload-audio" class="x-button" x="audio">选择音乐</a>
                 </div>
                 <div id="upload-view"></div>
             </div>
@@ -28,15 +33,35 @@
     <script type="text/javascript" src="../js/Q.Uploader.UI.File.js"></script>
 
     <script type="text/javascript">
-        new Q.Uploader({
-            url: UPLOAD_URL + "?type=image",
-            target: document.getElementById("upload-target"),
-            view: document.getElementById("upload-view"),
+        var map_settings = {
+            image: {
+                allows: ".jpg,.png,.gif,.bmp",
+                accept: "image/*"
+            },
+            video: {
+                allows: ".mp4,.mkv,.avi,.rmvb,.rm,.ts",
+                accept: "video/*"
+            },
+            audio: {
+                allows: ".mp3,.wma,.ape,.flac,.ogg",
+                accept: "audio/*"
+            }
+        };
 
-            allows: ".jpg,.png,.gif,.bmp",
+        var uploader = new Q.Uploader({
+            url: UPLOAD_URL + "?type=image",
+            target: [document.getElementById("upload-image"), document.getElementById("upload-video"), document.getElementById("upload-audio")],
+            view: document.getElementById("upload-view"),
 
             //回调函数
             on: {
+                select: function (e) {
+                    var el = e.target || e.srcElement,
+                        type = el.getAttribute("x"),
+                        settings = map_settings[type];
+
+                    this.set(settings);
+                },
                 add: function (task) {
                     if (task.disabled) return alert("允许上传的文件格式为：" + this.ops.allows);
                 }
