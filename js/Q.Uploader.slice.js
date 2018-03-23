@@ -2,7 +2,7 @@
 /*
 * Q.Uploader.slice.js 分片上传
 * author:devin87@qq.com  
-* update:2018/03/08 09:29
+* update:2018/03/23 11:00
 */
 (function (window, undefined) {
     "use strict";
@@ -52,7 +52,7 @@
                     if (completed) return self.complete(task, Uploader.COMPLETE, text);
 
                     //分片上传成功继续上传
-                    if (text == 1) return callback();
+                    if (text == 1 || text == '"1"') return callback();
 
                     process_upload_error();
                 }, false);

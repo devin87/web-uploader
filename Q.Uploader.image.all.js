@@ -383,7 +383,7 @@
 * Q.Uploader.js 文件上传管理器 1.0
 * https://github.com/devin87/web-uploader
 * author:devin87@qq.com  
-* update:2018/03/22 10:18
+* update:2018/03/23 11:23
 */
 (function (window, undefined) {
     "use strict";
@@ -536,6 +536,7 @@
 
             upName: "upfile",  //上传参数名称,若后台需要根据name来获取上传数据,可配置此项
             accept: "",        //指定浏览器接受的文件类型 eg:image/*,video/*
+            isDir: false,      //是否是文件夹上传（仅Webkit内核浏览器和新版火狐有效）
 
             allows: "",        //允许上传的文件类型(扩展名),多个之间用逗号隔开
             disallows: "",     //禁止上传的文件类型(扩展名)
@@ -637,6 +638,9 @@
             //input元素的accept属性,用来指定浏览器接受的文件类型 eg:image/*,video/*
             //注意：IE9及以下不支持accept属性
             self.accept = ops.accept;
+
+            //是否是文件夹上传，仅Webkit内核浏览器和新版火狐有效
+            self.isDir = ops.isDir;
 
             //允许上传的文件类型（扩展名）,多个之间用逗号隔开 eg:.jpg,.png
             self.allows = split_to_map(ops.allows);
@@ -766,7 +770,7 @@
 
             if (!boxInput) return self;
 
-            boxInput.innerHTML = '<input type="file" name="' + self.upName + '"' + (self.accept ? 'accept="' + self.accept + '"' : '') + ' style="' + (self.clickTrigger ? 'visibility: hidden;' : 'font-size:100px;') + '"' + (self.multiple ? ' multiple="multiple"' : '') + '>';
+            boxInput.innerHTML = '<input type="file" name="' + self.upName + '"' + (self.accept ? 'accept="' + self.accept + '"' : '') + (self.isDir ? 'webkitdirectory=""' : '') + ' style="' + (self.clickTrigger ? 'visibility: hidden;' : 'font-size:100px;') + '"' + (self.multiple ? ' multiple="multiple"' : '') + '>';
 
             var inputFile = getFirst(boxInput);
 
@@ -833,7 +837,7 @@
             var name, size;
 
             if (file) {
-                name = file.name || file.fileName;
+                name = file.webkitRelativePath || file.name || file.fileName;
                 size = file.size || file.fileSize;
             } else {
                 name = get_last_find(input.value, "\\").slice(1) || input.value;

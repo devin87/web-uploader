@@ -23,7 +23,10 @@ public class upload : IHttpHandler
                 HttpPostedFile file = request.Files[0];
 
                 string fileName = request["fileName"];
-                if (string.IsNullOrEmpty(fileName)) fileName = System.IO.Path.GetFileName(file.FileName);
+                if (string.IsNullOrEmpty(fileName)) fileName = file.FileName;
+
+                string dir = Path.GetDirectoryName(fileName);
+                if (!string.IsNullOrEmpty(dir) && !Directory.Exists(dir)) Directory.CreateDirectory(context.Server.MapPath("~/upload/" + dir));
 
                 string path = context.Server.MapPath("~/upload/" + fileName);
                 file.SaveAs(path);

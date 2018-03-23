@@ -28,6 +28,7 @@
         { title: "多个上传管理器", href: "tabs.html" },
         { title: "拖拽上传（仅html5）", href: "drag-drop.html" },
         { title: "多UI（文件上传+图片上传）", href: "image-and-file.html" },
+        { title: "文件夹上传", href: "folder.html" },
         { title: "自定义UI", href: "custom.html" }
     ];
 

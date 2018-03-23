@@ -107,6 +107,7 @@ new Q.Uploader({
 
     upName: "upfile",  //上传参数名称,若后台需要根据name来获取上传数据,可配置此项
     accept: "",        //指定浏览器接受的文件类型 eg:image/*,video/*  =>  IE9及以下不支持
+    isDir: false,      //是否是文件夹上传（仅Webkit内核浏览器和新版火狐有效）
 
     allows: "",        //允许上传的文件类型(扩展名),多个之间用逗号隔开
     disallows: "",     //禁止上传的文件类型(扩展名)
