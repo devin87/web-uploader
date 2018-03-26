@@ -4,7 +4,7 @@
 * Q.Uploader.js 文件上传管理器 1.0
 * https://github.com/devin87/web-uploader
 * author:devin87@qq.com  
-* update:2018/03/23 11:23
+* update:2018/03/26 18:11
 */
 (function (window, undefined) {
     "use strict";
@@ -459,7 +459,7 @@
 
             if (file) {
                 name = file.webkitRelativePath || file.name || file.fileName;
-                size = file.size || file.fileSize;
+                size = file.size === 0 ? 0 : file.size || file.fileSize;
             } else {
                 name = get_last_find(input.value, "\\").slice(1) || input.value;
                 size = -1;
