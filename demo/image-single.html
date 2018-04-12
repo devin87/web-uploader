@@ -1,0 +1,101 @@
+﻿<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>文件上传</title>
+    <link href="demo.css" rel="stylesheet" type="text/css" />
+    <link href="../css/uploader-image.css" rel="stylesheet" type="text/css" />
+    <style type="text/css">
+        .ui-image .u-close-bg, .ui-image .u-close-text { display: block; }
+    </style>
+</head>
+
+<body>
+    <div id="header" class="header">Header</div>
+    <div class="main">
+        <div class="content">
+            <div class="contentin">
+                <div>
+                    <a id="upload-target" class="x-button">添加图片并压缩</a>
+                    <a id="start-upload" class="x-button">开始上传</a>
+                </div>
+                <div id="upload-image-view" class="clearfix"></div>
+                <div id="log"></div>
+            </div>
+        </div>
+        <div id="sidebar" class="sidebar"></div>
+    </div>
+
+    <script type="text/javascript" src="demo.js"></script>
+
+    <script type="text/javascript" src="../js/Q.js"></script>
+    <script type="text/javascript" src="../js/Q.Uploader.js"></script>
+    <script type="text/javascript" src="../js/Q.Uploader.UI.Image.js"></script>
+
+    <script type="text/javascript">
+        function log(msg) {
+            document.getElementById("log").innerHTML += (msg != undefined ? msg : "") + "<br />";
+        }
+
+        var Uploader = Q.Uploader,
+            formatSize = Q.formatSize,
+            boxView = document.getElementById("upload-image-view");
+
+        var uploader = new Uploader({
+            url: UPLOAD_URL,
+            target: document.getElementById("upload-target"),
+            view: boxView,
+
+            multiple: false,    //选择文件时是否允许多选
+
+            //将auto配置为false以手动上传
+            auto: false,
+
+            allows: ".jpg,.png,.gif,.bmp",
+
+            //图片缩放
+            scale: {
+                //要缩放的图片格式
+                types: ".jpg",
+                //最大图片大小(width|height)
+                maxWidth: 1024
+            },
+
+            on: {
+                //添加之前触发
+                add: function (task) {
+                    if (task.disabled) return alert("允许上传的文件格式为：" + this.ops.allows);
+
+                    this.ops.view.innerHTML = '';
+
+                    this.list = [task];
+                    this.map[task.id] = task;
+                    this.index = 0;
+                    this.workerIdle = 1;
+                },
+                //图片预览后触发
+                preview: function (data) {
+                    log(data.task.name + " : " + data.src);
+                },
+                //图片压缩后触发,如果图片或浏览器不支持压缩,则不触发
+                scale: function (data) {
+                    log(data.task.name + " : 已压缩！");
+                },
+                upload: function (task) {
+                    log(task.name + " : 开始上传");
+                },
+                remove: function (task) {
+                    log(task.name + " : 已移除！");
+                }
+            }
+        });
+
+        //将auto配置为false以手动上传
+        //uploader.start();
+
+        document.getElementById("start-upload").onclick = function () {
+            uploader.start();
+        };
+    </script>
+</body>
+</html>
