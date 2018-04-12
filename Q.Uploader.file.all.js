@@ -383,7 +383,7 @@
 * Q.Uploader.js 文件上传管理器 1.0
 * https://github.com/devin87/web-uploader
 * author:devin87@qq.com  
-* update:2018/03/26 18:11
+* update:2018/04/12 10:05
 */
 (function (window, undefined) {
     "use strict";
@@ -989,7 +989,7 @@
         upload: function (task) {
             var self = this;
 
-            if (!task || task.state != UPLOAD_STATE_READY || task.skip) return self.start();
+            if (!task || task.state != UPLOAD_STATE_READY || task.skip || task.deleted) return self.start();
 
             task.url = self.url;
             self.workerIdle--;

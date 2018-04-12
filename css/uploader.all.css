@@ -41,6 +41,8 @@
 
 .ui-image .u-img, .ui-image .u-img img { width: 136px; height: 150px; overflow: hidden; }
 .ui-image .u-name { text-align: center; height: 24px; line-height: 24px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.ui-image .u-close-bg, .ui-image .u-close-text { position: absolute; top: 0; right: 0; width: 24px; height: 24px; line-height: 24px; color: #fff; text-align: center; cursor: pointer; display: none; }
+.ui-image .u-close-bg { background-color: #7ce4e6; opacity: 0.3; }
 
 .ui-image .u-progress-bar, .ui-image .u-detail { position: absolute; left: 0; bottom: 24px; width: 100%; height: 20px; }
 .ui-image .u-progress-bar { background-color: #7ce4e6; opacity: 0.3; }

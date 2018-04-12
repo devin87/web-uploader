@@ -2,7 +2,7 @@
 /*
 * Q.Uploader.Image.js 图片上传管理器界面
 * author:devin87@qq.com  
-* update:2017/08/14 15:28
+* update:2018/04/12 10:05
 */
 (function (window, undefined) {
     "use strict";
@@ -243,7 +243,9 @@
                     '<div class="u-progress"></div>' +
                 '</div>' +
                 '<div class="u-detail"></div>' +
-                '<div class="u-name" title="' + name + '">' + name + '</div>';
+                '<div class="u-name" title="' + name + '">' + name + '</div>' +
+                '<div class="u-close-bg"></div>' +
+                '<div class="u-close-text">X</div>';
 
             var taskId = task.id,
                 box = createEle("div", "u-item", html);
@@ -253,14 +255,24 @@
             var boxImage = getFirst(box),
                 boxProgressbar = getNext(boxImage),
                 boxProgress = getFirst(boxProgressbar),
-                boxDetail = getNext(boxProgressbar);
+                boxDetail = getNext(boxProgressbar),
+                boxName = getNext(boxDetail),
+                boxCloseBg = getNext(boxName),
+                boxCloseBtn = getNext(boxCloseBg);
 
             setOpacity(boxProgressbar, 0.3);
             setOpacity(boxProgress, 0.5);
+            setOpacity(boxCloseBg, 0.3);
+
+            boxCloseBtn.onclick = function () {
+                boxView.removeChild(box);
+                self.remove(taskId);
+            };
 
             task.box = box;
             task.boxProgress = boxProgress;
             task.boxDetail = boxDetail;
+            task.boxName = boxName;
 
             //添加到视图中
             boxView.appendChild(box);
