@@ -383,7 +383,7 @@
 * Q.Uploader.js 文件上传管理器 1.0
 * https://github.com/devin87/web-uploader
 * author:devin87@qq.com  
-* update:2018/04/12 10:05
+* update:2018/05/03 14:28
 */
 (function (window, undefined) {
     "use strict";
@@ -637,7 +637,7 @@
 
             //input元素的accept属性,用来指定浏览器接受的文件类型 eg:image/*,video/*
             //注意：IE9及以下不支持accept属性
-            self.accept = ops.accept;
+            self.accept = ops.accept || ops.allows;
 
             //是否是文件夹上传，仅Webkit内核浏览器和新版火狐有效
             self.isDir = ops.isDir;
