@@ -383,7 +383,7 @@
 * Q.Uploader.js 文件上传管理器 1.0
 * https://github.com/devin87/web-uploader
 * author:devin87@qq.com  
-* update:2018/05/03 14:28
+* update:2018/07/24 15:47
 */
 (function (window, undefined) {
     "use strict";
@@ -1011,7 +1011,7 @@
                 url = self.url,
                 xhr = new XMLHttpRequest();
 
-            task.queryUrl = url + (url.indexOf("?") == -1 ? "?" : "&") + "action=query&hash=" + (task.hash || encodeURIComponent(task.name)) + "&fileName=" + encodeURIComponent(task.name);
+            task.queryUrl = url + (url.indexOf("?") == -1 ? "?" : "&") + "action=query&hash=" + (task.hash || encodeURIComponent(task.name)) + "&fileName=" + encodeURIComponent(task.name) + (task.size != -1 ? "&fileSize=" + task.size : "");
 
             //秒传查询事件
             self.fire("sliceQuery", task);

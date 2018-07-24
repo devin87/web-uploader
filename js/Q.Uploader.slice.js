@@ -2,7 +2,7 @@
 /*
 * Q.Uploader.slice.js 分片上传
 * author:devin87@qq.com  
-* update:2018/03/23 11:00
+* update:2018/07/24 15:47
 */
 (function (window, undefined) {
     "use strict";
@@ -67,6 +67,7 @@
                 });
 
                 fd.append("fileName", task.name);
+                if (task.size != -1) fd.append("fileSize", task.size);
                 fd.append(self.upName, blob, task.name);
                 fd.append("sliceCount", task.sliceCount);
                 fd.append("sliceIndex", task.sliceIndex);
