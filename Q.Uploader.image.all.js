@@ -383,7 +383,7 @@
 * Q.Uploader.js 文件上传管理器 1.0
 * https://github.com/devin87/web-uploader
 * author:devin87@qq.com  
-* update:2018/07/24 15:47
+* update:2018/11/07 12:27
 */
 (function (window, undefined) {
     "use strict";
@@ -433,6 +433,13 @@
         UPLOAD_STATE_SKIP = -1,              //任务已跳过(不会上传)
         UPLOAD_STATE_CANCEL = -2,            //任务已取消
         UPLOAD_STATE_ERROR = -3;             //任务已失败
+
+    var global_settings = {};
+
+    //Uploader全局设置
+    function setup(ops) {
+        extend(global_settings, ops, true);
+    }
 
     //获取上传状态说明
     function get_upload_status_text(state) {
@@ -1005,19 +1012,38 @@
             return self;
         },
 
+        _process_xhr_headers: function (xhr) {
+            var ops = this.ops;
+
+            //设置http头(必须在 xhr.open 之后)
+            var fn = function (k, v) {
+                xhr.setRequestHeader(k, v);
+            };
+
+            if (global_settings.headers) Object.forEach(global_settings.headers, fn);
+            if (ops.headers) Object.forEach(ops.headers, fn);
+        },
+
         //根据 task.hash 查询任务状态（for 秒传或续传）
         queryState: function (task, callback) {
             var self = this,
                 url = self.url,
                 xhr = new XMLHttpRequest();
 
-            task.queryUrl = url + (url.indexOf("?") == -1 ? "?" : "&") + "action=query&hash=" + (task.hash || encodeURIComponent(task.name)) + "&fileName=" + encodeURIComponent(task.name) + (task.size != -1 ? "&fileSize=" + task.size : "");
+            var params = ["action=query", "hash=" + (task.hash || encodeURIComponent(task.name)), "fileName=" + encodeURIComponent(task.name)];
+            if (task.size != -1) params.push("fileSize=" + task.size);
+
+            self._process_params(task, function (k, v) {
+                params.push(encodeURIComponent(k) + "=" + (v != undefined ? encodeURIComponent(v) : ""));
+            }, "dataQuery");
+
+            task.queryUrl = url + (url.indexOf("?") == -1 ? "?" : "&") + params.join("&");
 
             //秒传查询事件
             self.fire("sliceQuery", task);
 
             xhr.open("GET", task.queryUrl);
-            //xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest");
+            self._process_xhr_headers(xhr);
 
             xhr.onreadystatechange = function () {
                 if (xhr.readyState != 4) return;
@@ -1107,9 +1133,11 @@
         },
 
         //处理上传参数
-        _process_params: function (task, fn) {
+        _process_params: function (task, fn, prop) {
+            prop = prop || "data";
+            if (global_settings.data) Object.forEach(global_settings.data, fn);
             if (this.data) Object.forEach(this.data, fn);
-            if (task.data) Object.forEach(task.data, fn);
+            if (task && task[prop]) Object.forEach(task[prop], fn);
         },
 
         //以html5的方式上传任务
@@ -1146,6 +1174,7 @@
             fd.append(self.upName, task.blob || task.file, task.name);
 
             xhr.open("POST", task.url);
+            self._process_xhr_headers(xhr);
 
             //移除自定义标头,以防止跨域上传被拦截
             //xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest");
@@ -1296,6 +1325,7 @@
             status_error: "已失败"
         },
 
+        setup: setup,
         getStatusText: get_upload_status_text
     });
 

@@ -99,6 +99,7 @@ new Q.Uploader({
 
     auto: true,        //添加任务后是否立即上传
 
+	headers:{},        //ajax 消息头(仅html5模式有效)
     data: {},          //上传文件的同时可以指定其它参数,该参数将以POST的方式提交到服务器
 
     dataType: "json",  //服务器返回值类型
@@ -153,6 +154,12 @@ new Q.Uploader({
         update: function(task){ },     //更新任务界面  
         over: function(){ }            //任务上传完成
     }
+});
+
+//全局设置
+Q.Uploader.setup({
+	headers:{},   //ajax 消息头
+	data:{}       //附加参数
 });
 ```
 

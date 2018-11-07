@@ -2,7 +2,7 @@
 /*
 * Q.Uploader.slice.js 分片上传
 * author:devin87@qq.com  
-* update:2018/07/24 15:47
+* update:2018/11/07 11:52
 */
 (function (window, undefined) {
     "use strict";
@@ -73,8 +73,7 @@
                 fd.append("sliceIndex", task.sliceIndex);
 
                 xhr.open("POST", url);
-
-                //xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest");
+                self._process_xhr_headers(xhr);
 
                 //上传完毕
                 if (completed) {
