@@ -383,7 +383,7 @@
 * Q.Uploader.js 文件上传管理器 1.0
 * https://github.com/devin87/web-uploader
 * author:devin87@qq.com  
-* update:2018/11/07 12:27
+* update:2020/07/22 20:02
 */
 (function (window, undefined) {
     "use strict";
@@ -401,7 +401,7 @@
         parseHTML = Q.parseHTML,
 
         setOpacity = Q.setOpacity,
-        getOffset = Q.getOffset,
+        getOffset = Q.getOffset || Q.offset,
 
         md5File = Q.md5File,
 
@@ -643,9 +643,10 @@
             self.upName = ops.upName || "upfile";
 
             //input元素的accept属性,用来指定浏览器接受的文件类型 eg:image/*,video/*
-            //注意：IE9及以下不支持accept属性
-            self.accept = ops.accept || ops.allows;
-
+            //注1：IE9及以下不支持accept属性
+            //注2：某些手机浏览器不支持扩展名的 accept 值，弹出的文件选择框没有文件选择项
+            self.accept = ops.accept || ((navigator.platform || '').indexOf('Win') == 0 ? ops.allows : "*/*");
+            
             //是否是文件夹上传，仅Webkit内核浏览器和新版火狐有效
             self.isDir = ops.isDir;
 
@@ -765,9 +766,7 @@
                 self.resetInput();
             }
 
-            self.fire("init");
-
-            return self.run("init");
+            return self.run("init", undefined, "init");
         },
 
         //重置上传控件
@@ -831,9 +830,11 @@
         },
 
         //运行内部方法或扩展方法(如果存在)
-        run: function (action, arg) {
+        //action_event: 若存在,则触发ops上定义的回调方法
+        run: function (action, arg, action_event) {
             var fn = this[action];
             if (fn) fire(fn, this, arg);
+            if (action_event) fire(this.fns[action_event], this, arg);
             return this;
         },
 
@@ -883,7 +884,7 @@
                 self.list.push(task);
                 self.map[task.id] = task;
 
-                self.run("draw", task);
+                self.run("draw", task, "draw");
 
                 if (self.auto) self.start();
             });
@@ -1248,8 +1249,7 @@
             task.total = total;
             task.loaded = loaded;
 
-            this.fire("progress", task);
-            this.run("update", task);
+            this.run("update", task, "progress");
         },
 
         //处理响应数据
@@ -1277,7 +1277,7 @@
                 if (responseText !== undefined) self._process_response(task, responseText);
             }
 
-            self.run("update", task).run("over", task);
+            self.run("update", task, "update").run("over", task, "over");
 
             if (state == UPLOAD_STATE_CANCEL) self.fire("cancel", task);
             self.fire("complete", task);

@@ -1,4 +1,4 @@
-﻿.upload-input { position: absolute; overflow: hidden; }
+﻿.upload-input { position: absolute; overflow: hidden; z-index: 10000; }
 .upload-html4 { position: absolute; left: -10000px; top: -10000px; }
 
 .u-loaded { color: green; }

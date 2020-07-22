@@ -2,14 +2,15 @@
 /*
 * Q.Uploader.slice.js 分片上传
 * author:devin87@qq.com  
-* update:2018/11/07 11:52
+* update:2018/11/19 10:25
 */
 (function (window, undefined) {
     "use strict";
 
-    var blobSlice = File.prototype.slice || File.prototype.mozSlice || File.prototype.webkitSlice,
+    var Uploader = Q.Uploader;
+    if (!Uploader.support.html5) return;
 
-        Uploader = Q.Uploader;
+    var blobSlice = window.File ? File.prototype.slice || File.prototype.mozSlice || File.prototype.webkitSlice : undefined;
 
     Uploader.extend({
         //分片上传+断点续传
