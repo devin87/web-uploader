@@ -2,7 +2,7 @@
 /*
 * Q.Uploader.slice.js 分片上传
 * author:devin87@qq.com  
-* update:2018/11/19 10:25
+* update:2020/08/25 18:25
 */
 (function (window, undefined) {
     "use strict";
@@ -25,6 +25,8 @@
 
             //分片上传
             var upload = function (blob, callback, c) {
+                c = +c || 0;
+
                 var xhr = new XMLHttpRequest(),
                     url = task.url,
                     completed = end == size;
@@ -37,28 +39,24 @@
                     self.progress(task, size, start + e.loaded);
                 }, false);
 
-                //分片上传失败
-                var process_upload_error = function () {
-                    c = +c || 0;
-                    c++;
+                xhr.addEventListener("load", function (e) {
+                    var responseText = e.target.responseText;
+                    if (completed) return self.complete(task, Uploader.COMPLETE, responseText);
 
-                    if (c > retryCount) return self.complete(task, Uploader.ERROR);
+                    //分片上传成功继续上传
+                    if (responseText == 1 || responseText == '"1"') return callback();
+
+                    //服务器返回失败
+                    self.complete(task, Uploader.ERROR, responseText);
+                }, false);
+
+                //分片上传失败
+                xhr.addEventListener("error", function () {
+                    if (++c > retryCount) return self.complete(task, Uploader.ERROR);
 
                     //重新上传
                     upload(blob, callback, c);
-                };
-
-                xhr.addEventListener("load", function (e) {
-                    var text = e.target.responseText;
-                    if (completed) return self.complete(task, Uploader.COMPLETE, text);
-
-                    //分片上传成功继续上传
-                    if (text == 1 || text == '"1"') return callback();
-
-                    process_upload_error();
                 }, false);
-
-                xhr.addEventListener("error", process_upload_error, false);
 
                 var fd = new FormData;
 

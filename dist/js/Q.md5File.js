@@ -1,3 +1,3 @@
 //devin87@qq.com
-//build:2016/06/17 13:31:24
-!function(e,r){"use strict";function t(e,r,t){function a(){var r=p*n,t=r+n>=l?l:r+n;f.readAsArrayBuffer(i.call(e,r,t))}var l=e.size,c=Math.ceil(l/n),p=0,f=new FileReader,u=Date.now();o.reset(),f.onload=function(e){o.append(e.target.result),p++,t&&t(p/c),c>p?a():r&&r(o.end(),Date.now()-u)},f.onerror=r,a()}if(e.SparkMD5&&e.File){var i=File.prototype.slice||File.prototype.mozSlice||File.prototype.webkitSlice,o=new SparkMD5.ArrayBuffer,n=2097152;Q.md5File=t}}(window);
+//build:2020/08/25 18:26:41
+!function(e){"use strict";if(e.SparkMD5&&e.File){var f=File.prototype.slice||File.prototype.mozSlice||File.prototype.webkitSlice,u=new SparkMD5.ArrayBuffer,d=2097152;Q.md5File=function(t,r,i){var o=t.size,n=Math.ceil(o/d),a=0,l=new FileReader,c=Date.now();function p(){var e=a*d,r=o<=e+d?o:e+d;l.readAsArrayBuffer(f.call(t,e,r))}u.reset(),l.onload=function(e){u.append(e.target.result),a++,i&&i(a/n),a<n?p():r&&r(u.end(),Date.now()-c)},l.onerror=r,p()}}}(window);
