@@ -116,16 +116,17 @@ new Q.Uploader({
     maxSize: 0,        //允许上传的最大文件大小,字节,为0表示不限(仅对支持的浏览器生效,eg: IE10+、Firefox、Chrome)
 
     //秒传+分片上传+断点续传,具体见示例（demo/slice.html）
+	urlForQuery: "",              //查询接口，为空时默认为上传 url
     isSlice: false,               //是否启用分片上传，若为true，则isQueryState和isMd5默认为true
     chunkSize: 2 * 1024 * 1024,   //默认分片大小为2MB
-    //查询路径为： url?action=query&hash=file hash
-    isQueryState:false,           //是否查询文件状态（for 秒传或续传）
-    isMd5: false,                 //是否计算上传文件md5值
-    isUploadAfterHash:true,       //是否在Hash计算完毕后再上传
-    sliceRetryCount:2,            //分片上传失败重试次数
+    //查询路径为： urlForQuery?action=query&hash=&fileName=&fileSize=
+    isQueryState: false,           //是否查询文件状态（for 秒传或续传）
+    isMd5: false,                  //是否计算上传文件md5值作为文件hash，需存在 Q.md5File(file, callback, progress)
+    isUploadAfterHash: true,       //是否在Hash计算完毕后再上传
+    sliceRetryCount: 2,            //分片上传失败重试次数
 
-    container:document.body,      //一般无需指定
-    getPos: function(){ },        //一般无需指定
+    container: document.body,      //一般无需指定
+    getPos: function(){ },         //一般无需指定
 
     //上传回调事件(function)
     on: {
@@ -135,8 +136,9 @@ new Q.Uploader({
         add: function(task){ },           //添加任务之前触发,返回false将跳过该任务
         upload: function(task){ },        //上传任务之前触发,返回false将跳过该任务
         hashProgress: function(task){ },  //文件hash进度（仅isMd5为true时有效）
-        hash: function(task){ },          //查询状态之前触发（for 秒传或续传）
-        sliceQuery: function(task){ },    //秒传查询之前触发
+        hash: function(task){ },          //hash计算，查询之前触发（for 秒传或续传）
+        beforeQuery: function(task){ },    //查询之前触发（for 秒传或续传）
+        query: function(task){ },          //查询到结果后触发（for 秒传或续传），返回-1表示秒传成功，返回其它数字表示上传起始点
         sliceUpload: function(task){ },   //分片上传之前触发，返回false将跳过该分片
         send: function(task){ },          //发送数据之前触发,返回false将跳过该任务
     

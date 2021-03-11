@@ -68,6 +68,8 @@
 
     //------------------- export -------------------
 
-    window.UPLOAD_URL = "../api/upload.ashx";
+    var UPLOAD_URL = window.localStorage ? localStorage.getItem("UPLOAD_URL") : undefined;
+
+    window.UPLOAD_URL = UPLOAD_URL || "../api/upload.ashx";
 
 })();

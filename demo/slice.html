@@ -36,15 +36,57 @@
             document.getElementById("log").innerHTML += (msg != undefined ? msg : "") + "<br />";
         }
 
+        //简易hash计算
+        function computeHash(file, callback) {
+            var blobSlice = File.prototype.slice || File.prototype.mozSlice || File.prototype.webkitSlice,
+                spark = new SparkMD5.ArrayBuffer();
+
+            var fr = new FileReader(),
+                size = file.size,
+                chunkSize = 100 * 1024,
+                startTime = Date.now(),
+                bufferStart = 0,
+                bufferEnd = 0;
+
+            spark.reset();
+
+            fr.onload = function (e) {
+                spark.append(e.target.result);
+
+                if (bufferEnd >= size) return callback && callback(spark.end(), Date.now() - startTime);
+
+                var middleSize = Math.floor(size / 2);
+                if (bufferEnd < middleSize) {
+                    //计算中间100KB
+                    loadBuffer(middleSize - chunkSize / 2, middleSize + chunkSize / 2);
+                } else {
+                    //计算尾部100KB
+                    loadBuffer(size - chunkSize, size);
+                }
+            };
+
+            fr.onerror = callback;
+
+            var loadBuffer = function (start, end) {
+                bufferStart = start;
+                bufferEnd = end;
+
+                fr.readAsArrayBuffer(blobSlice.call(file, start, end));
+            };
+
+            loadBuffer(0, size <= 300 * 1024 ? size : chunkSize);
+        }
+
         var Uploader = Q.Uploader;
 
         var uploader = new Uploader({
-            url: UPLOAD_URL + "?type=file",
+            url: UPLOAD_URL,
+            //urlForQuery: UPLOAD_URL,  //秒传或分片上传查询接口，未指定时默认使用上传接口
             target: document.getElementById("upload-target"),
             view: document.getElementById("upload-view"),
 
             isSlice: true,                  //是否启用分片上传，若为true，则isQueryState和isMd5默认为true
-            //chunkSize: 2 * 1024 * 1024,   //默认分片大小为2MB
+            chunkSize: 4 * 1024 * 1024,     //默认分片大小为2MB
             //isQueryState: true,           //是否查询文件状态（for 秒传或续传）
             sliceRetryCount: 1,             //分片上传失败重试次数,默认为2
 
@@ -98,32 +140,58 @@
                     if (task.ext == ".exe") return false;
 
                     //可针对单独的任务配置参数(POST方式)
-                    task.data = { name: task.name + "_" + Date.now() };
+                    task.data = { name: Date.now() + task.ext };
                 },
 
-                //文件hash进度
-                hashProgress: function (task, pvg) {
-                    document.title = "hash: " + (pvg * 100).toFixed(2) + "%";
-                },
-
-                //查询状态之前触发（for 秒传或续传）
-                //若自己实现hash计算，可配置isMd5为false
-                //hashAsync: function (task, callback) {
-                //    Q.md5File(task.file, function (md5) {
-                //        //task.hash:秒传或断点续传唯一标识
-                //        task.hash = md5;
-                //        callback();
-                //    });
+                //文件hash进度（未指定 hashAsync 且 isMd5 为true 且存在 Q.md5File 方法时生效）
+                //hashProgress: function (task, pvg) {
+                //    document.title = "hash: " + (pvg * 100).toFixed(2) + "%";
                 //},
 
-                //秒传查询事件
-                sliceQuery: function (task) {
+                //自己实现hash计算，查询状态之前触发（for 秒传或续传）
+                hashAsync: function (task, callback) {
+                    //Q.md5File(task.file, function (md5) {
+                    //    //task.hash: 秒传或断点续传唯一标识
+                    //    task.hash = md5;
+                    //    callback();
+                    //}, function (pvg) {
+                    //    //hash进度
+                    //    document.title = "hash: " + (pvg * 100).toFixed(2) + "%";
+                    //});
+
+                    computeHash(task.file, function (hash, time) {
+                        task.hash = hash + task.size;
+                        log(task.name + ' hash time: ' + time + 'ms');
+                        callback();
+                    });
+                },
+
+                //秒传查询之前
+                beforeQuery: function (task) {
                     log(task.name + ": " + task.queryUrl);
 
                     //console.log(task);
 
                     //自定义查询路径
                     //task.queryUrl = task.url + "&action=query&hash=" + task.hash;
+                },
+
+                //秒传查询之后
+                query: function (task) {
+                    //服务器返回的json数据 eg: { "code": 0, data: {} }
+                    var json = task.json,
+                        data = json ? json.data : undefined;
+
+                    if (data) {
+                        //秒传成功
+                        if (data.ok || data.url) return -1;
+
+                        //从指定位置开始上传
+                        return data.start;
+                    }
+
+                    //从0开始上传
+                    return 0;
                 },
 
                 //分片上传之前触发（for 秒传或续传）

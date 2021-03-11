@@ -383,7 +383,7 @@
 * Q.Uploader.js 文件上传管理器 1.0
 * https://github.com/devin87/web-uploader
 * author:devin87@qq.com  
-* update:2020/07/22 20:02
+* update:2021/03/11 11:22
 */
 (function (window, undefined) {
     "use strict";
@@ -556,6 +556,7 @@
             isMd5: false,                 //是否计算上传文件md5值
             isUploadAfterHash:true,       //是否在Hash计算完毕后再上传
             sliceRetryCount:2,            //分片上传失败重试次数
+            urlForQuery: "",              //秒传或分片上传查询接口
 
             container:element, //一般无需指定
             getPos:function,   //一般无需指定
@@ -566,6 +567,7 @@
     
                 select,        //点击上传按钮准备选择上传文件之前触发,返回false可禁止选择文件
                 add[Async],    //添加任务之前触发,返回false将跳过该任务
+                query[Async],  //秒传或断点续传获取到查询结果后触发，返回-1表示秒传成功，返回大于或等于0的数字表示上传起始点
                 upload[Async], //上传任务之前触发,返回false将跳过该任务
                 send[Async],   //发送数据之前触发,返回false将跳过该任务
     
@@ -646,7 +648,7 @@
             //注1：IE9及以下不支持accept属性
             //注2：某些手机浏览器不支持扩展名的 accept 值，弹出的文件选择框没有文件选择项
             self.accept = ops.accept || ((navigator.platform || '').indexOf('Win') == 0 ? ops.allows : "*/*");
-            
+
             //是否是文件夹上传，仅Webkit内核浏览器和新版火狐有效
             self.isDir = ops.isDir;
 
@@ -665,6 +667,8 @@
             self.isMd5 = !!def(ops.isMd5, self.isSlice);                  //是否计算上传文件md5值
             self.isUploadAfterHash = ops.isUploadAfterHash !== false;     //是否在Hash计算完毕后再上传
             self.sliceRetryCount = ops.sliceRetryCount == undefined ? 2 : +ops.sliceRetryCount || 0; //分片上传失败重试次数
+
+            self.urlForQuery = ops.urlForQuery || self.url;    //秒传或分片上传查询接口
 
             //ie9及以下不支持click触发(即使能弹出文件选择框,也无法获取文件数据,报拒绝访问错误)
             //若上传按钮位置不确定(比如在滚动区域内),则无法触发文件选择
@@ -1028,7 +1032,7 @@
         //根据 task.hash 查询任务状态（for 秒传或续传）
         queryState: function (task, callback) {
             var self = this,
-                url = self.url,
+                url = self.urlForQuery,
                 xhr = new XMLHttpRequest();
 
             var params = ["action=query", "hash=" + (task.hash || encodeURIComponent(task.name)), "fileName=" + encodeURIComponent(task.name)];
@@ -1041,6 +1045,9 @@
             task.queryUrl = url + (url.indexOf("?") == -1 ? "?" : "&") + params.join("&");
 
             //秒传查询事件
+            self.fire("beforeQuery", task);
+
+            //兼容以前代码
             self.fire("sliceQuery", task);
 
             xhr.open("GET", task.queryUrl);
@@ -1049,31 +1056,39 @@
             xhr.onreadystatechange = function () {
                 if (xhr.readyState != 4) return;
 
-                var responseText, json;
+                if (xhr.status < 200 || xhr.status >= 400) return fire(callback, self, xhr);
 
-                if (xhr.status >= 200 && xhr.status < 400) {
-                    responseText = xhr.responseText;
+                var responseText = xhr.responseText,
+                    json;
 
-                    if (responseText === "ok") json = { ret: 1 };
-                    else if (responseText) json = parseJSON(responseText);
+                if (responseText === "ok") json = { data: { ok: true } };
+                else if (responseText) json = parseJSON(responseText);
 
-                    if (!json || typeof json == "number") json = { ret: 0, start: json };
+                if (!json || typeof json == "number") json = { data: { start: json } };
 
-                    task.response = responseText;
-                    task.json = json;
+                task.response = responseText;
+                task.json = json;
 
-                    if (json.ret == 1) {
+                //query事件用于处理返回值以兼容不同接口
+                self.fire("query", task, function (result) {
+                    if (result == undefined) {
+                        var data = json ? json.data : undefined;
+                        if (data) result = data.ok || data.url ? -1 : data.start; //优先使用新结构 eg: {data:{ok:true}} 或 {data: {start:0}}
+                        else result = json.ret == 1 ? -1 : json.start; //兼容老结构 eg: {ret:1,data:{name,url,size}} 或 {ret:0,start:0}
+                    }
+
+                    if (result == -1) {
                         task.queryOK = true;
                         self.cancel(task.id, true).complete(task, UPLOAD_STATE_COMPLETE);
                     } else {
-                        var start = +json.start || 0;
+                        var start = +result || 0;
                         if (start != Math.floor(start)) start = 0;
 
                         task.sliceStart = start;
                     }
-                }
 
-                fire(callback, self, xhr);
+                    fire(callback, self, xhr);
+                });
             };
 
             xhr.onerror = function () {
@@ -1098,19 +1113,19 @@
             };
 
             var after_hash = function (callback) {
-                //自定义hash事件
-                self.fire("hash", task, function () {
-                    if (task.hash && self.isQueryState && task.state != UPLOAD_STATE_COMPLETE) self.queryState(task, callback);
-                    else callback();
-                });
+                if (task.hash && self.isQueryState && task.state != UPLOAD_STATE_COMPLETE) self.queryState(task, callback);
+                else callback();
             };
 
             //计算文件hash
             var compute_hash = function (callback) {
-                //计算上传文件md5值
-                if (self.isMd5 && md5File) {
+                //自定义hash事件
+                self.fire("hash", task, function () {
+                    if (task.hash || !self.isMd5 || !md5File) return after_hash(callback);
+
                     var hashProgress = self.fns.hashProgress;
 
+                    //计算上传文件md5值（需后台能根据此值查询到已上传的文件）
                     md5File(task.file, function (md5, time) {
                         task.hash = md5;
                         task.timeHash = time;
@@ -1118,9 +1133,7 @@
                     }, function (pvg) {
                         fire(hashProgress, self, task, pvg);
                     });
-                } else {
-                    after_hash(callback);
-                }
+                });
             };
 
             if (self.isUploadAfterHash) {
