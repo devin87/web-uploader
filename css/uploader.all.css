@@ -15,9 +15,9 @@
 
 .ui-file .u-size, .ui-file .u-speed, .ui-file .u-progress-bar, .ui-file .u-detail, .ui-file .u-state, .ui-file .u-op { float: left; text-align: center; }
 
-.ui-file .u-progress-bar, .ui-file .u-progress { background: url(../images/Q/progress.gif) repeat-x; }
-.ui-file .u-progress-bar { width: 150px; height: 7px; overflow: hidden; margin: 15px 6px 0 0; padding: 1px 0; }
-.ui-file .u-progress { width: 1px; height: 7px; background-position: 0 -9px; }
+.ui-file .u-progress-bar, .ui-file .u-progress { background: url(../images/Q/progress.gif) 0 1px repeat-x; }
+.ui-file .u-progress-bar { width: 150px; height: 7px; overflow: hidden; margin: 15px 6px 0 0; }
+.ui-file .u-progress { width: 1px; height: 7px; background-position: 0 -10px; }
 
 .ui-file .u-detail { width: 55px; }
 .ui-file .u-state { min-width: 45px; }
