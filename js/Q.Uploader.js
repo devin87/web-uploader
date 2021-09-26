@@ -956,7 +956,9 @@
             status_complete: "已完成",
             status_skip: "已跳过",
             status_cancel: "已取消",
-            status_error: "已失败"
+            status_error: "已失败",
+
+            upload_error: "服务器或网络错误"
         },
 
         setup: setup,

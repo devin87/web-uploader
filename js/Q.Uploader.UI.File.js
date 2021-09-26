@@ -127,6 +127,11 @@
             //更新任务状态
             setHtml(boxState, Uploader.getStatusText(state));
 
+            if (state == Uploader.ERROR) {
+                var json = task.json || {};
+                box.title = json.msg || json.errMsg || task.response || Uploader.Lang.upload_error;
+            }
+
             if (total < 0) return;
 
             var html_size = '';

@@ -1335,7 +1335,9 @@
             status_complete: "已完成",
             status_skip: "已跳过",
             status_cancel: "已取消",
-            status_error: "已失败"
+            status_error: "已失败",
+
+            upload_error: "服务器或网络错误"
         },
 
         setup: setup,
@@ -1598,6 +1600,11 @@
 
             //更新任务状态
             setHtml(boxState, Uploader.getStatusText(state));
+
+            if (state == Uploader.ERROR) {
+                var json = task.json || {};
+                box.title = json.msg || json.errMsg || task.response || Uploader.Lang.upload_error;
+            }
 
             if (total < 0) return;
 

@@ -1,6 +1,6 @@
 ﻿/// <reference path="Q.Uploader.js" />
 /*
-* Q.Uploader.Image.js 图片上传管理器界面
+* Q.Uploader.UI.Image.js 图片上传管理器界面
 * author:devin87@qq.com  
 * update:2018/04/12 10:05
 */
