@@ -32,7 +32,7 @@ Node.js 演示见[web-uploader-node](https://github.com/devin87/web-uploader-nod
 例：一般文件上传，使用默认的UI
 ```
 1. 导入样式文件(若自己实现UI接口，则无需导入默认的样式文件)
-<link href="css/uploader.css" rel="stylesheet" type="text/css" />
+<link href="css/uploader.all.css" rel="stylesheet" type="text/css" />
 
 2. 导入js文件（可自行合并，若自己实现UI接口，则无需导入 Q.Uploader.UI.File.js 文件）
 <script type="text/javascript" src="js/Q.js"></script>
@@ -54,7 +54,7 @@ new Q.Uploader({
 例：图片上传+预览+缩放
 ```
 1. 导入样式文件(若自己实现UI接口，则无需导入默认的样式文件)
-<link href="css/uploader-image.css" rel="stylesheet" type="text/css" />
+<link href="css/uploader.all.css" rel="stylesheet" type="text/css" />
 
 2. 导入js文件（可自行合并）
 <script type="text/javascript" src="js/Q.js"></script>
@@ -99,7 +99,7 @@ new Q.Uploader({
 
     auto: true,        //添加任务后是否立即上传
 
-	headers:{},        //ajax 消息头(仅html5模式有效)
+    headers:{},        //ajax 消息头(仅html5模式有效)
     data: {},          //上传文件的同时可以指定其它参数,该参数将以POST的方式提交到服务器
 
     dataType: "json",  //服务器返回值类型
@@ -116,7 +116,7 @@ new Q.Uploader({
     maxSize: 0,        //允许上传的最大文件大小,字节,为0表示不限(仅对支持的浏览器生效,eg: IE10+、Firefox、Chrome)
 
     //秒传+分片上传+断点续传,具体见示例（demo/slice.html）
-	urlForQuery: "",              //查询接口，为空时默认为上传 url
+    urlForQuery: "",              //查询接口，为空时默认为上传 url
     isSlice: false,               //是否启用分片上传，若为true，则isQueryState和isMd5默认为true
     chunkSize: 2 * 1024 * 1024,   //默认分片大小为2MB
     //查询路径为： urlForQuery?action=query&hash=&fileName=&fileSize=
@@ -160,8 +160,8 @@ new Q.Uploader({
 
 //全局设置
 Q.Uploader.setup({
-	headers:{},   //ajax 消息头
-	data:{}       //附加参数
+    headers:{},   //ajax 消息头
+    data:{}       //附加参数
 });
 ```
 
