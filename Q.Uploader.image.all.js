@@ -383,7 +383,7 @@
 * Q.Uploader.js 文件上传管理器 1.0
 * https://github.com/devin87/web-uploader
 * author:devin87@qq.com  
-* update:2021/03/11 11:22
+* update:2022/01/07 14:48
 */
 (function (window, undefined) {
     "use strict";
@@ -517,8 +517,11 @@
         tick = nowTime - task.lastTime;
         if (tick < 200) return;
 
-        task.speed = Math.min(Math.round((loaded - task.loaded) * 1000 / tick), task.total);
+        var lastLoaded = task.lastLoaded || 0;
+
+        task.speed = Math.min(Math.round((loaded - lastLoaded) * 1000 / tick), task.total);
         task.lastTime = nowTime;
+        task.lastLoaded = loaded;
     }
 
     /*
@@ -823,14 +826,36 @@
 
             return self;
         },
-        //触发ops上定义的回调方法,优先触发异步回调(以Async结尾)
+        //触发回调方法,优先触发异步回调(以Async结尾)
         fire: function (action, arg, callback) {
-            if (!callback) return fire(this.fns[action], this, arg);
+            var self = this,
+                fns = self.fns || {},
+                globalFns = global_settings.on || {},
+                result;
 
-            var asyncFun = this.fns[action + "Async"];
-            if (asyncFun) return fire(asyncFun, this, arg, callback);
+            if (!callback) {
+                result = fire(fns[action], self, arg);
+                var result2 = fire(globalFns[action], self, arg);
+                return result != undefined ? result : result2;
+            }
 
-            callback(fire(this.fns[action], this, arg));
+            var next2 = function (result2) {
+                callback(result != undefined ? result : result2);
+            };
+
+            var next = function (result1) {
+                result = result1;
+
+                var globalAsyncFun = globalFns[action + "Async"];
+                if (globalAsyncFun) return fire(globalAsyncFun, self, arg, next2);
+
+                next2(fire(globalFns[action], self, arg));
+            };
+
+            var asyncFun = fns[action + "Async"];
+            if (asyncFun) return fire(asyncFun, self, arg, next);
+
+            next(fire(fns[action], self, arg));
         },
 
         //运行内部方法或扩展方法(如果存在)
@@ -838,7 +863,7 @@
         run: function (action, arg, action_event) {
             var fn = this[action];
             if (fn) fire(fn, this, arg);
-            if (action_event) fire(this.fns[action_event], this, arg);
+            if (action_event) this.fire(action_event, arg)
             return this;
         },
 
@@ -1069,8 +1094,13 @@
                 task.response = responseText;
                 task.json = json;
 
+                //获取到查询结果后触发
+                if (self.fire("queryResponse", task) === false) return self.complete(task, UPLOAD_STATE_ERROR);
+
                 //query事件用于处理返回值以兼容不同接口
                 self.fire("query", task, function (result) {
+                    if (result === false) return self.complete(task, UPLOAD_STATE_ERROR);
+
                     if (result == undefined) {
                         var data = json ? json.data : undefined;
                         if (data) result = data.ok || data.url ? -1 : data.start; //优先使用新结构 eg: {data:{ok:true}} 或 {data: {start:0}}
@@ -1280,14 +1310,25 @@
             if (!task && self.workerThread == 1) task = self._lastTask;
 
             if (task) {
+                if (responseText !== undefined) {
+                    self._process_response(task, responseText);
+
+                    //上传事件
+                    if (self.fire("uploadResponse", task) === false) state = UPLOAD_STATE_ERROR;
+                }
+
+                //提示信息，一般用于上传失败的情况，鼠标移动到上传状态上会提示该信息，自定义界面需自己实现该提示 eg: <div title="${task.message}">已失败</div>
+                if (!task.message) {
+                    var json = task.json;
+                    if (json) task.message = json.errMsg || json.msg || json.result || json.Result || json.message;
+                }
+
                 if (state != undefined) task.state = state;
 
                 if (task.state == UPLOAD_STATE_PROCESSING || state == UPLOAD_STATE_COMPLETE) {
                     task.state = UPLOAD_STATE_COMPLETE;
                     self.progress(task, task.size, task.size);
                 }
-
-                if (responseText !== undefined) self._process_response(task, responseText);
             }
 
             self.run("update", task, "update").run("over", task, "over");
@@ -1669,6 +1710,7 @@
             }
 
             setHtml(boxDetail, html_detail);
+            boxDetail.title = task.message || "";
         },
 
         //上传完毕

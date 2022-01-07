@@ -320,6 +320,7 @@
             }
 
             setHtml(boxDetail, html_detail);
+            boxDetail.title = task.message || "";
         },
 
         //上传完毕

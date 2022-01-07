@@ -128,7 +128,7 @@ new Q.Uploader({
     container: document.body,      //一般无需指定
     getPos: function(){ },         //一般无需指定
 
-    //上传回调事件(function)
+    //回调事件(function), 回调事件(add、upload、hash、sliceUpload、send)支持异步调用，只需在后面加上Async即可，使用方法参考下面示例
     on: {
         init: function(){ },              //上传管理器初始化完毕后触发
     
@@ -138,7 +138,7 @@ new Q.Uploader({
         hashProgress: function(task){ },  //文件hash进度（仅isMd5为true时有效）
         hash: function(task){ },          //hash计算，查询之前触发（for 秒传或续传）
         beforeQuery: function(task){ },    //查询之前触发（for 秒传或续传）
-        query: function(task){ },          //查询到结果后触发（for 秒传或续传），返回-1表示秒传成功，返回其它数字表示上传起始点
+        query: function(task){ },          //查询到结果后触发（for 秒传或续传），返回false表示上传失败，返回-1表示秒传成功，返回其它数字表示上传起始点
         sliceUpload: function(task){ },   //分片上传之前触发，返回false将跳过该分片
         send: function(task){ },          //发送数据之前触发,返回false将跳过该任务
     
@@ -146,6 +146,7 @@ new Q.Uploader({
         remove: function(task){ },        //移除上传任务后触发
     
         progress: function(task){ },      //上传进度发生变化后触发(仅html5模式有效)
+		uploadResponse: function(task){ },//上传完成后获取到服务器响应后触发
         complete: function(task){ }       //上传完成后触发
     },
 
@@ -160,8 +161,29 @@ new Q.Uploader({
 
 //全局设置
 Q.Uploader.setup({
-    headers:{},   //ajax 消息头
-    data:{}       //附加参数
+    headers: { },   //ajax 消息头
+    data: { },      //附加参数
+	//全局事件, 事件(add、upload、hash、sliceUpload、send)支持异步调用，只需在后面加上Async即可，使用方法参考下面示例
+	on: {
+		init: function(){ },              //上传管理器初始化完毕后触发
+    
+        select: function(task){ },        //点击上传按钮准备选择上传文件之前触发,返回false可禁止选择文件
+        add: function(task){ },           //添加任务之前触发,返回false将跳过该任务
+        upload: function(task){ },        //上传任务之前触发,返回false将跳过该任务
+        hashProgress: function(task){ },  //文件hash进度（仅isMd5为true时有效）
+        hash: function(task){ },          //hash计算，查询之前触发（for 秒传或续传）
+        beforeQuery: function(task){ },   //查询之前触发（for 秒传或续传）
+        query: function(task){ },          //查询到结果后触发（for 秒传或续传），返回false表示上传失败，返回-1表示秒传成功，返回其它数字表示上传起始点
+        sliceUpload: function(task){ },   //分片上传之前触发，返回false将跳过该分片
+        send: function(task){ },          //发送数据之前触发,返回false将跳过该任务
+    
+        cancel: function(task){ },        //取消上传任务后触发
+        remove: function(task){ },        //移除上传任务后触发
+    
+        progress: function(task){ },      //上传进度发生变化后触发(仅html5模式有效)
+		uploadResponse: function(task){ },//上传完成后获取到服务器响应后触发
+        complete: function(task){ }       //上传完成后触发
+	}
 });
 ```
 
@@ -240,7 +262,6 @@ on: {
 }
 ```
 
-
 说明：回调事件(add、upload、hash、sliceUpload、send)支持异步调用，只需在后面加上Async即可，比如在上传之前需要访问服务器验证数据，通过的就上传，否则跳过
 ```javascript
 on: {
@@ -266,7 +287,6 @@ on: {
     }
 }
 ```
-
 
 ### 手动操作(api)
 ```
